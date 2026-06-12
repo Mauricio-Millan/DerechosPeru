@@ -3,7 +3,7 @@ services:
     name: constitucionPeru
     env: node
     plan: free
-    buildCommand: "npm ci && npm run build:ssr"
+    buildCommand: "npm ci && npm run build"
     startCommand: "node dist/app/server/main.mjs"
     region:lima
     autoDeploy:true
