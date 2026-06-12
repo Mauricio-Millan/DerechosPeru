@@ -4,6 +4,6 @@ services:
     env: node
     plan: free
     buildCommand: "npm ci && npm run build"
-    startCommand: "node dist/app/server/main.mjs"
+    startCommand: "node dist/FrontDerechosPeru/server/server.mjs"
     region:lima
     autoDeploy:true
