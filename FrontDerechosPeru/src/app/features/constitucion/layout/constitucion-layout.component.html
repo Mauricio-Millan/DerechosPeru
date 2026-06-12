@@ -1,0 +1,10 @@
+<app-constitucion-header />
+
+<app-stats-bar
+  [estadisticas]="estadisticas"
+  [totalGuardados]="guardadosService.cantidad()"
+/>
+
+<main class="layout__main">
+  <router-outlet />
+</main>

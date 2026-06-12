@@ -1,0 +1,154 @@
+@use '../../../../styles/variables' as v;
+
+.card {
+  background: v.$color-bg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  margin-bottom: v.$spacing-sm;
+  transition: box-shadow v.$transition-fast;
+
+  &:hover {
+    box-shadow: v.$shadow-card-hover;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: v.$spacing-md;
+    padding: v.$spacing-md v.$spacing-md;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  &__numero {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: v.$radius-sm;
+    background: v.$color-primary;
+    color: v.$color-text-on-primary;
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: v.$spacing-sm;
+    margin-bottom: v.$spacing-xs;
+  }
+
+  &__title {
+    font-family: v.$font-family-ui;
+    font-size: v.$font-size-base;
+    font-weight: 600;
+    color: v.$color-text-primary;
+    line-height: 1.3;
+  }
+
+  &__categoria {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px v.$spacing-sm;
+    border-radius: v.$radius-pill;
+    font-size: v.$font-size-xs;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid currentColor;
+
+    // Colores por categoría via data-cat
+    &[data-cat='derechos-fundamentales'] { color: v.$cat-derechos-fundamentales; background: rgba(v.$cat-derechos-fundamentales, 0.06); }
+    &[data-cat='estado-y-nacion']        { color: v.$cat-estado-nacion; background: rgba(v.$cat-estado-nacion, 0.06); }
+    &[data-cat='economia']               { color: v.$cat-economia; background: rgba(v.$cat-economia, 0.06); }
+    &[data-cat='regimen-politico']       { color: v.$cat-regimen-politico; background: rgba(v.$cat-regimen-politico, 0.06); }
+    &[data-cat='poder-legislativo']      { color: v.$cat-poder-legislativo; background: rgba(v.$cat-poder-legislativo, 0.06); }
+    &[data-cat='poder-ejecutivo']        { color: v.$cat-poder-ejecutivo; background: rgba(v.$cat-poder-ejecutivo, 0.06); }
+    &[data-cat='poder-judicial']         { color: v.$cat-poder-judicial; background: rgba(v.$cat-poder-judicial, 0.06); }
+    &[data-cat='descentralizacion']      { color: v.$cat-descentralizacion; background: rgba(v.$cat-descentralizacion, 0.06); }
+    &[data-cat='garantias-constitucionales'] { color: v.$cat-garantias-constitucionales; background: rgba(v.$cat-garantias-constitucionales, 0.06); }
+    &[data-cat='reforma-constitucional'] { color: v.$cat-reforma-constitucional; background: rgba(v.$cat-reforma-constitucional, 0.06); }
+  }
+
+  &__preview {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-secondary;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-xs;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  &__btn-bookmark,
+  &__btn-expand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: v.$radius-sm;
+    color: v.$color-text-muted;
+    transition: color v.$transition-fast, background v.$transition-fast;
+
+    &:hover {
+      color: v.$color-primary;
+      background: v.$color-primary-bg;
+    }
+  }
+
+  &__btn-bookmark--active {
+    color: v.$color-primary;
+  }
+
+  &__btn-expand svg {
+    transition: transform v.$transition-base;
+
+    &.rotated {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__body {
+    padding: 0 v.$spacing-md v.$spacing-md;
+    padding-left: calc(v.$spacing-md + 2rem + v.$spacing-md);
+  }
+
+  &__contenido {
+    font-size: v.$font-size-base;
+    color: v.$color-text-primary;
+    line-height: 1.7;
+    margin-bottom: v.$spacing-md;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-sm;
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+  }
+
+  &__meta-sep {
+    opacity: 0.4;
+  }
+}

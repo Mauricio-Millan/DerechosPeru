@@ -1,0 +1,48 @@
+<aside class="sidebar">
+  <div class="sidebar__header">
+    <span class="sidebar__label">ESTRUCTURA</span>
+  </div>
+
+  <nav class="sidebar__nav" aria-label="Índice de la Constitución">
+    @for (titulo of titulos; track titulo.id) {
+      <div class="sidebar__titulo" [class.sidebar__titulo--activo]="tituloActivoId === titulo.id">
+        <button
+          class="sidebar__titulo-btn"
+          (click)="toggleTitulo(titulo)"
+          [attr.aria-expanded]="isTituloExpandido(titulo.id)"
+        >
+          <svg
+            class="sidebar__chevron"
+            [class.sidebar__chevron--open]="isTituloExpandido(titulo.id)"
+            width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="sidebar__titulo-texto">
+            <span class="sidebar__titulo-nombre">Título {{ titulo.numero | number:'1.0-0' }}</span>
+            <span class="sidebar__titulo-sub">{{ titulo.nombre }}</span>
+          </div>
+        </button>
+
+        @if (isTituloExpandido(titulo.id) && titulo.capitulos) {
+          <ul class="sidebar__capitulos" role="list">
+            @for (cap of titulo.capitulos; track cap.id) {
+              <li>
+                <button
+                  class="sidebar__capitulo-btn"
+                  [class.sidebar__capitulo-btn--activo]="capituloActivoId === cap.id"
+                  (click)="selectCapitulo(cap)"
+                >
+                  <span class="sidebar__cap-nombre">Cap. {{ cap.numero }} {{ cap.nombre }}</span>
+                  @if (cap.totalArticulos) {
+                    <span class="sidebar__cap-count">{{ cap.totalArticulos }}</span>
+                  }
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </nav>
+</aside>

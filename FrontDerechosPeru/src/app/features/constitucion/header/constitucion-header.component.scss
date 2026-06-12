@@ -1,0 +1,78 @@
+@use '../../../../styles/variables' as v;
+
+.header {
+  background: v.$color-primary;
+
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: v.$spacing-lg v.$spacing-xl;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-md;
+  }
+
+  &__logo {
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+
+  &__titles {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__supertitle {
+    font-family: v.$font-family-ui;
+    font-size: v.$font-size-xs;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-2xl;
+    font-weight: 700;
+    color: v.$color-text-on-primary;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  &__subtitle {
+    font-family: v.$font-family-ui;
+    font-size: v.$font-size-sm;
+    color: rgba(255, 255, 255, 0.65);
+    font-style: italic;
+  }
+
+  &__badge {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-sm;
+    padding: 8px v.$spacing-md;
+    border-radius: v.$radius-md;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: v.$font-size-sm;
+    font-weight: 500;
+    font-family: v.$font-family-ui;
+    white-space: nowrap;
+  }
+
+  &__line {
+    height: 2px;
+    background: linear-gradient(90deg, v.$color-gold 0%, rgba(v.$color-gold, 0.3) 60%, transparent 100%);
+    margin: 0 v.$spacing-xl;
+  }
+}

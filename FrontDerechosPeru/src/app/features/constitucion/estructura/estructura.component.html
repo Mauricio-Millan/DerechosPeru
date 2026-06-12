@@ -1,0 +1,77 @@
+<div class="estructura">
+  <app-estructura-sidebar
+    [titulos]="titulos()"
+    [tituloActivoId]="tituloActivo()?.id ?? null"
+    [capituloActivoId]="capituloActivo()?.id ?? null"
+    (tituloSeleccionado)="onTituloSeleccionado($event)"
+    (capituloSeleccionado)="onCapituloSeleccionado($event)"
+  />
+
+  <section class="estructura__content" aria-live="polite">
+    @if (tituloActivo()) {
+      <div class="estructura__titulo-header">
+        <h2 class="estructura__titulo-nombre">
+          Título {{ tituloActivo()!.numero }} — {{ tituloActivo()!.nombre }}
+        </h2>
+        @if (tituloActivo()!.capitulos) {
+          <p class="estructura__titulo-meta">
+            {{ tituloActivo()!.capitulos!.length }} capítulos
+            @if (tituloActivo()!.totalArticulos) {
+              &nbsp;·&nbsp; {{ tituloActivo()!.totalArticulos }} artículos
+            }
+          </p>
+        }
+      </div>
+
+      @if (!capituloActivo() && tituloActivo()!.capitulos) {
+        <div class="estructura__capitulos-list">
+          @for (cap of tituloActivo()!.capitulos!; track cap.id) {
+            <button class="estructura__cap-card" (click)="onCapituloSeleccionado(cap)">
+              <span class="estructura__cap-num">{{ cap.numero }}</span>
+              <div>
+                <p class="estructura__cap-nombre">{{ cap.nombre }}</p>
+                @if (cap.totalArticulos) {
+                  <p class="estructura__cap-meta">Capítulo {{ cap.numero }} · {{ cap.totalArticulos }} artículos</p>
+                }
+              </div>
+            </button>
+          }
+        </div>
+      }
+
+      @if (capituloActivo()) {
+        <div class="estructura__capitulo-header">
+          <h3 class="estructura__cap-titulo">
+            <span class="estructura__cap-badge">{{ capituloActivo()!.numero }}</span>
+            {{ capituloActivo()!.nombre }}
+          </h3>
+          @if (capituloActivo()!.totalArticulos) {
+            <p class="estructura__cap-meta-detail">
+              Capítulo {{ capituloActivo()!.numero }} · {{ capituloActivo()!.totalArticulos }} artículos
+            </p>
+          }
+        </div>
+
+        @if (cargando()) {
+          <div class="estructura__loading" aria-label="Cargando artículos">
+            @for (i of [1,2,3]; track i) {
+              <div class="estructura__skeleton"></div>
+            }
+          </div>
+        }
+
+        @for (articulo of articulos(); track articulo.id) {
+          <app-article-card [articulo]="articulo" />
+        }
+
+        @if (!cargando() && articulos().length === 0) {
+          <p class="estructura__vacio">No hay artículos en este capítulo.</p>
+        }
+      }
+    } @else {
+      <div class="estructura__empty-state">
+        <p>Selecciona un título del índice para comenzar.</p>
+      </div>
+    }
+  </section>
+</div>

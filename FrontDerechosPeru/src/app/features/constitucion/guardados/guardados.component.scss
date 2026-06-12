@@ -1,0 +1,87 @@
+@use '../../../../styles/variables' as v;
+
+.guardados {
+  padding: v.$spacing-xl;
+  max-width: 900px;
+
+  &__header {
+    margin-bottom: v.$spacing-xl;
+    padding-bottom: v.$spacing-md;
+    border-bottom: 1px solid v.$color-border;
+  }
+
+  &__titulo {
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-xl;
+    font-weight: 700;
+    color: v.$color-text-primary;
+    margin-bottom: v.$spacing-xs;
+  }
+
+  &__subtitulo {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-sm;
+  }
+
+  &__skeleton {
+    height: 72px;
+    border-radius: v.$radius-md;
+    background: linear-gradient(90deg, v.$color-border 25%, v.$color-bg-subtle 50%, v.$color-border 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-md;
+    padding: v.$spacing-xl * 2 v.$spacing-xl;
+    text-align: center;
+    color: v.$color-text-muted;
+
+    svg {
+      opacity: 0.25;
+    }
+  }
+
+  &__empty-title {
+    font-size: v.$font-size-lg;
+    font-weight: 600;
+    color: v.$color-text-secondary;
+  }
+
+  &__empty-desc {
+    font-size: v.$font-size-sm;
+    max-width: 320px;
+    line-height: 1.6;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px v.$spacing-lg;
+    border-radius: v.$radius-md;
+    background: v.$color-primary;
+    color: v.$color-text-on-primary;
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    margin-top: v.$spacing-sm;
+    transition: background v.$transition-fast;
+
+    &:hover {
+      background: v.$color-primary-dark;
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

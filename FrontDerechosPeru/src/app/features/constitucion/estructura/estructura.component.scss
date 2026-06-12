@@ -1,0 +1,149 @@
+@use '../../../../styles/variables' as v;
+
+.estructura {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 120px);
+  overflow: hidden;
+
+  &__content {
+    flex: 1;
+    overflow-y: auto;
+    padding: v.$spacing-xl;
+    max-width: 900px;
+  }
+
+  &__titulo-header {
+    margin-bottom: v.$spacing-xl;
+    padding-bottom: v.$spacing-md;
+    border-bottom: 1px solid v.$color-border;
+  }
+
+  &__titulo-nombre {
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-xl;
+    font-weight: 700;
+    color: v.$color-text-primary;
+    margin-bottom: v.$spacing-xs;
+  }
+
+  &__titulo-meta {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+  }
+
+  &__capitulos-list {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-sm;
+  }
+
+  &__cap-card {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-md;
+    padding: v.$spacing-md;
+    background: v.$color-bg;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-md;
+    cursor: pointer;
+    text-align: left;
+    transition: box-shadow v.$transition-fast, border-color v.$transition-fast;
+
+    &:hover {
+      box-shadow: v.$shadow-card-hover;
+      border-color: v.$color-primary;
+    }
+  }
+
+  &__cap-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: v.$radius-sm;
+    background: v.$color-primary;
+    color: v.$color-text-on-primary;
+    font-size: v.$font-size-base;
+    font-weight: 700;
+    font-family: v.$font-family-base;
+    flex-shrink: 0;
+  }
+
+  &__cap-nombre {
+    font-size: v.$font-size-base;
+    font-weight: 600;
+    color: v.$color-text-primary;
+  }
+
+  &__cap-meta {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+    margin-top: 2px;
+  }
+
+  &__capitulo-header {
+    margin-bottom: v.$spacing-lg;
+    padding-bottom: v.$spacing-md;
+    border-bottom: 1px solid v.$color-border;
+  }
+
+  &__cap-titulo {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-md;
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-lg;
+    font-weight: 600;
+    color: v.$color-text-primary;
+    margin-bottom: v.$spacing-xs;
+  }
+
+  &__cap-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: v.$radius-sm;
+    background: v.$color-primary;
+    color: v.$color-text-on-primary;
+    font-size: v.$font-size-base;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  &__cap-meta-detail {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+    padding-left: calc(2rem + v.$spacing-md);
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-sm;
+  }
+
+  &__skeleton {
+    height: 64px;
+    border-radius: v.$radius-md;
+    background: linear-gradient(90deg, v.$color-border 25%, v.$color-bg-subtle 50%, v.$color-border 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+
+  &__vacio,
+  &__empty-state {
+    padding: v.$spacing-xl;
+    text-align: center;
+    color: v.$color-text-muted;
+    font-size: v.$font-size-sm;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

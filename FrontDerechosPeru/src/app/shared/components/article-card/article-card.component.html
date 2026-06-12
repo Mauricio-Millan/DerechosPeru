@@ -1,0 +1,64 @@
+<div class="card" [class.card--expanded]="expandido()">
+  <div class="card__header" (click)="toggle()">
+    <span class="card__numero">{{ articulo.numero }}</span>
+
+    <div class="card__info">
+      <div class="card__title-row">
+        <h3 class="card__title">{{ articulo.titulo }}</h3>
+        <span class="card__categoria" [attr.data-cat]="categoriaSlug">
+          {{ articulo.categoria }}
+        </span>
+      </div>
+
+      @if (!expandido()) {
+        <p class="card__preview">{{ articulo.contenido }}</p>
+      }
+    </div>
+
+    <div class="card__actions">
+      <button
+        class="card__btn-bookmark"
+        [class.card__btn-bookmark--active]="isGuardado"
+        (click)="onToggleGuardado($event)"
+        [attr.aria-label]="isGuardado ? 'Quitar de guardados' : 'Guardar artículo'"
+        type="button"
+      >
+        <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1h14v18l-7-4-7 4V1z"
+            [attr.stroke]="isGuardado ? 'currentColor' : 'currentColor'"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            [attr.fill]="isGuardado ? 'currentColor' : 'none'"
+          />
+        </svg>
+      </button>
+
+      <button
+        class="card__btn-expand"
+        [attr.aria-expanded]="expandido()"
+        [attr.aria-label]="expandido() ? 'Colapsar artículo' : 'Expandir artículo'"
+        (click)="toggle()"
+        type="button"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"
+          [class.rotated]="expandido()">
+          <path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  @if (expandido()) {
+    <div class="card__body">
+      <p class="card__contenido">{{ articulo.contenido }}</p>
+      <div class="card__meta">
+        <span>Art. {{ articulo.numero }}</span>
+        <span class="card__meta-sep">·</span>
+        <span>{{ articulo.categoria }}</span>
+        <span class="card__meta-sep">·</span>
+        <span>Constitución Política del Perú, 1993</span>
+      </div>
+    </div>
+  }
+</div>

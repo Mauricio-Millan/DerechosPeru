@@ -1,0 +1,72 @@
+@use '../../../../styles/variables' as v;
+
+.stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 v.$spacing-xl;
+  height: 52px;
+  background: v.$color-bg;
+  border-bottom: 1px solid v.$color-border;
+
+  &__counters {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-md;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: v.$font-size-sm;
+    color: v.$color-text-secondary;
+
+    svg {
+      color: v.$color-text-muted;
+      flex-shrink: 0;
+    }
+
+    strong {
+      font-weight: 600;
+      color: v.$color-text-primary;
+    }
+  }
+
+  &__sep {
+    width: 1px;
+    height: 16px;
+    background: v.$color-border;
+  }
+
+  &__tabs {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-xs;
+  }
+
+  &__tab {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px v.$spacing-md;
+    border-radius: v.$radius-md;
+    font-size: v.$font-size-sm;
+    font-weight: 500;
+    color: v.$color-text-secondary;
+    transition: background v.$transition-fast, color v.$transition-fast;
+
+    &:hover {
+      color: v.$color-primary;
+      background: v.$color-primary-bg;
+    }
+
+    &--active {
+      background: v.$color-primary;
+      color: v.$color-text-on-primary !important;
+
+      &:hover {
+        background: v.$color-primary-dark;
+      }
+    }
+  }
+}

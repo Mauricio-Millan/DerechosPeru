@@ -1,0 +1,87 @@
+<div class="buscar">
+  <div class="buscar__filtros">
+    <div class="buscar__search-wrap">
+      <svg class="buscar__search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input
+        class="buscar__input"
+        type="search"
+        placeholder="Buscar por número de artículo, título o contenido..."
+        [ngModel]="query"
+        (ngModelChange)="onQueryChange($event)"
+        aria-label="Buscar artículos"
+      />
+    </div>
+
+    <div class="buscar__categorias">
+      <span class="buscar__cat-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="7" y1="7" x2="7.01" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        FILTRAR POR CATEGORÍA
+      </span>
+
+      <div class="buscar__chips">
+        <button
+          class="buscar__chip"
+          [class.buscar__chip--active]="categoriaActiva === null"
+          (click)="selectCategoria(null)"
+        >
+          Todas
+        </button>
+
+        @for (cat of categorias; track cat) {
+          <button
+            class="buscar__chip"
+            [class.buscar__chip--active]="categoriaActiva === cat"
+            [attr.data-cat]="getCategoriaSlug(cat)"
+            (click)="selectCategoria(cat)"
+          >
+            {{ cat }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="buscar__results">
+    <p class="buscar__count" aria-live="polite">
+      @if (cargando()) {
+        Buscando...
+      } @else {
+        Mostrando {{ total() === 0 ? 'ningún' : total() + '' }} artículo{{ total() !== 1 ? 's' : '' }}
+        @if (query || categoriaActiva) {
+          <span class="buscar__count-detail">
+            @if (query) { para "<strong>{{ query }}</strong>" }
+            @if (categoriaActiva) { en <strong>{{ categoriaActiva }}</strong> }
+          </span>
+        }
+      }
+    </p>
+
+    @if (cargando()) {
+      <div class="buscar__loading">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="buscar__skeleton"></div>
+        }
+      </div>
+    }
+
+    @for (articulo of articulos(); track articulo.id) {
+      <app-article-card [articulo]="articulo" />
+    }
+
+    @if (!cargando() && articulos().length === 0) {
+      <div class="buscar__empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        <p>No se encontraron artículos con los filtros actuales.</p>
+      </div>
+    }
+  </div>
+</div>

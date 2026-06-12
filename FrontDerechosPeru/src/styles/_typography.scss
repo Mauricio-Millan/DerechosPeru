@@ -1,0 +1,21 @@
+@use 'variables' as v;
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+
+body {
+  font-family: v.$font-family-ui;
+  font-size: v.$font-size-base;
+  color: v.$color-text-primary;
+  background-color: v.$color-bg;
+}
+
+h1, h2, h3, h4 {
+  font-family: v.$font-family-base;
+  font-weight: 600;
+  line-height: 1.2;
+  color: v.$color-text-primary;
+}
+
+p {
+  line-height: 1.65;
+}

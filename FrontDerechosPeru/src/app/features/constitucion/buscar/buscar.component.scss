@@ -1,0 +1,159 @@
+@use '../../../../styles/variables' as v;
+
+.buscar {
+  padding: v.$spacing-xl;
+  max-width: 960px;
+
+  &__filtros {
+    background: v.$color-bg;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-lg;
+    padding: v.$spacing-lg;
+    margin-bottom: v.$spacing-lg;
+  }
+
+  &__search-wrap {
+    position: relative;
+    margin-bottom: v.$spacing-md;
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: v.$spacing-md;
+    top: 50%;
+    transform: translateY(-50%);
+    color: v.$color-text-muted;
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 10px v.$spacing-md 10px 2.75rem;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-md;
+    font-size: v.$font-size-base;
+    color: v.$color-text-primary;
+    background: v.$color-bg-subtle;
+    transition: border-color v.$transition-fast, box-shadow v.$transition-fast;
+    outline: none;
+
+    &::placeholder {
+      color: v.$color-text-muted;
+    }
+
+    &:focus {
+      border-color: v.$color-primary;
+      box-shadow: 0 0 0 3px rgba(v.$color-primary, 0.1);
+      background: v.$color-bg;
+    }
+
+    &::-webkit-search-cancel-button {
+      cursor: pointer;
+    }
+  }
+
+  &__cat-label {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-xs;
+    font-size: v.$font-size-xs;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: v.$color-text-muted;
+    margin-bottom: v.$spacing-sm;
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: v.$spacing-xs;
+  }
+
+  &__chip {
+    padding: 5px v.$spacing-sm;
+    border-radius: v.$radius-pill;
+    border: 1px solid v.$color-border;
+    font-size: v.$font-size-xs;
+    font-weight: 500;
+    color: v.$color-text-secondary;
+    background: v.$color-bg;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+
+    &:hover {
+      border-color: v.$color-primary;
+      color: v.$color-primary;
+      background: v.$color-primary-bg;
+    }
+
+    &--active {
+      background: v.$color-primary;
+      color: v.$color-text-on-primary;
+      border-color: v.$color-primary;
+
+      &:hover {
+        background: v.$color-primary-dark;
+      }
+
+      // Colores activos por categoría cuando no es el chip "Todas"
+      &[data-cat='derechos-fundamentales']    { background: v.$cat-derechos-fundamentales; border-color: v.$cat-derechos-fundamentales; }
+      &[data-cat='estado-y-nacion']           { background: v.$cat-estado-nacion; border-color: v.$cat-estado-nacion; }
+      &[data-cat='economia']                  { background: v.$cat-economia; border-color: v.$cat-economia; }
+      &[data-cat='regimen-politico']          { background: v.$cat-regimen-politico; border-color: v.$cat-regimen-politico; }
+      &[data-cat='poder-legislativo']         { background: v.$cat-poder-legislativo; border-color: v.$cat-poder-legislativo; }
+      &[data-cat='poder-ejecutivo']           { background: v.$cat-poder-ejecutivo; border-color: v.$cat-poder-ejecutivo; }
+      &[data-cat='poder-judicial']            { background: v.$cat-poder-judicial; border-color: v.$cat-poder-judicial; }
+      &[data-cat='descentralizacion']         { background: v.$cat-descentralizacion; border-color: v.$cat-descentralizacion; }
+      &[data-cat='garantias-constitucionales']{ background: v.$cat-garantias-constitucionales; border-color: v.$cat-garantias-constitucionales; }
+      &[data-cat='reforma-constitucional']    { background: v.$cat-reforma-constitucional; border-color: v.$cat-reforma-constitucional; }
+    }
+  }
+
+  &__count {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+    margin-bottom: v.$spacing-md;
+  }
+
+  &__count-detail {
+    margin-left: v.$spacing-xs;
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-sm;
+  }
+
+  &__skeleton {
+    height: 72px;
+    border-radius: v.$radius-md;
+    background: linear-gradient(90deg, v.$color-border 25%, v.$color-bg-subtle 50%, v.$color-border 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-md;
+    padding: v.$spacing-xl * 2;
+    color: v.$color-text-muted;
+    text-align: center;
+
+    svg {
+      opacity: 0.3;
+    }
+
+    p {
+      font-size: v.$font-size-sm;
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
