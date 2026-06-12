@@ -1,0 +1,9 @@
+services:
+  - type:web
+    name: constitucionPeru
+    env: node
+    plan: free
+    buildCommand: "npm ci && npm run build:ssr"
+    startCommand: "node dist/app/server/main.mjs"
+    region:lima
+    autoDeploy:true
