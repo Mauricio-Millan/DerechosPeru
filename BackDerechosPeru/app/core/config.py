@@ -52,10 +52,11 @@ class Settings(BaseSettings):
     GUIDED_MATCH_COUNT: int = 5
     GUIDED_MIN_SIMILARITY: float = 0.25
 
-    # --- Auth (Supabase emite el JWT HS256; el backend solo lo verifica) ---
-    # Supabase dashboard → Settings → API → JWT Secret
+    # --- Auth (Supabase emite el JWT; el backend solo lo verifica) ---
+    # URL pública del proyecto Supabase (no es secreto)
+    SUPABASE_URL: str = "https://ibwxubyunahygfsgljdg.supabase.co"
+    # JWT Secret solo se usa si Supabase emite HS256 (legacy). Con ES256 se usa JWKS.
     SUPABASE_JWT_SECRET: str | None = None
-    JWT_ALGORITHM: str = "HS256"
     # 'authenticated' es la audiencia por defecto de los JWT de Supabase
     JWT_AUDIENCE: str = "authenticated"
 

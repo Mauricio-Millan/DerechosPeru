@@ -1,15 +1,19 @@
 """Autenticación y RBAC.
 
-Supabase Auth emite y firma el JWT (HS256); aquí solo se VERIFICA la firma
-y se carga el rol desde `profile`. No se emiten tokens ni se manejan contraseñas.
+Supabase Auth emite y firma el JWT; aquí solo se VERIFICA la firma y se carga
+el rol desde `profile`. Soporta ES256 (JWKS, algoritmo actual de Supabase) y
+HS256 (legacy con JWT Secret). No se emiten tokens ni se manejan contraseñas.
 
 Dependencies reutilizables por todos los sprints:
 - get_current_user  -> exige sesión válida (401 si falta/!válido)
 - get_optional_user -> usuario o None (endpoints mixtos)
 - require_role(...)  -> exige uno de los roles (403 si no)
 """
+import json
+import urllib.request
 import uuid
 from dataclasses import dataclass
+from functools import lru_cache
 
 from fastapi import Depends, Header, HTTPException, status
 from jose import JWTError, jwt
@@ -28,17 +32,40 @@ class CurrentUser:
     email: str | None = None
 
 
+@lru_cache(maxsize=1)
+def _fetch_jwks() -> tuple[dict, ...]:
+    """Descarga las claves públicas de Supabase (cacheado por proceso)."""
+    url = f"{settings.SUPABASE_URL}/auth/v1/.well-known/jwks.json"
+    with urllib.request.urlopen(url, timeout=10) as r:  # noqa: S310
+        return tuple(json.loads(r.read())["keys"])
+
+
 def _decode(token: str) -> dict:
+    header = jwt.get_unverified_header(token)
+    alg = header.get("alg", "HS256")
+
+    if alg == "ES256":
+        kid = header.get("kid")
+        key = next((k for k in _fetch_jwks() if k.get("kid") == kid), None)
+        if key is None:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Clave JWT no encontrada en JWKS")
+        try:
+            return jwt.decode(token, key, algorithms=["ES256"], audience=settings.JWT_AUDIENCE)
+        except JWTError as e:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Token inválido: {e}",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+    # HS256 — legacy
     if not settings.SUPABASE_JWT_SECRET:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="SUPABASE_JWT_SECRET no configurado",
-        )
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "SUPABASE_JWT_SECRET no configurado")
     try:
         return jwt.decode(
             token,
             settings.SUPABASE_JWT_SECRET,
-            algorithms=[settings.JWT_ALGORITHM],
+            algorithms=["HS256"],
             audience=settings.JWT_AUDIENCE,
         )
     except JWTError as e:
