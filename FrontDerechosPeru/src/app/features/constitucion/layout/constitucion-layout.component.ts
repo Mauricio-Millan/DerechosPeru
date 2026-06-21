@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ConstitucionHeaderComponent } from '../header/constitucion-header.component';
 import { StatsBarComponent } from '../../../shared/components/stats-bar/stats-bar.component';
+import { WelcomeModalComponent } from '../../../shared/components/welcome-modal/welcome-modal.component';
 import { ConstitucionService } from '../../../core/services/constitucion.service';
 import { GuardadosService } from '../../../core/services/guardados.service';
 import { EstadisticasConstitucion } from '../../../core/models/constitucion.models';
@@ -9,7 +10,7 @@ import { EstadisticasConstitucion } from '../../../core/models/constitucion.mode
 @Component({
   selector: 'app-constitucion-layout',
   standalone: true,
-  imports: [RouterOutlet, ConstitucionHeaderComponent, StatsBarComponent],
+  imports: [RouterOutlet, ConstitucionHeaderComponent, StatsBarComponent, WelcomeModalComponent],
   templateUrl: './constitucion-layout.component.html',
   styleUrl: './constitucion-layout.component.scss',
 })

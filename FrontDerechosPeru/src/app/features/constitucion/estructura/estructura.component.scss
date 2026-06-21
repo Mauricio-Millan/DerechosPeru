@@ -1,5 +1,18 @@
 @use '../../../../styles/variables' as v;
 
+// ── Toggle sidebar (solo visible en móvil) ────────────────────────────────────
+.estructura__sidebar-toggle {
+  display: none;
+}
+
+// ── Overlay que oscurece el fondo cuando el sidebar está abierto en móvil ────
+.estructura__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 199;
+}
+
 .estructura {
   display: flex;
   flex: 1;
@@ -146,4 +159,59 @@
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+// ── Responsive: sidebar deslizable en móvil ───────────────────────────────────
+@media (max-width: 768px) {
+  .estructura__sidebar-toggle {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-xs;
+    padding: v.$spacing-xs v.$spacing-md;
+    background: v.$color-primary-bg;
+    border: 1px solid rgba(139, 32, 32, 0.2);
+    border-radius: v.$radius-md;
+    color: v.$color-primary;
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    font-family: v.$font-family-ui;
+    cursor: pointer;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    transition: background v.$transition-fast;
+
+    &:hover {
+      background: rgba(139, 32, 32, 0.08);
+    }
+  }
+
+  .estructura__sidebar-wrap {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: min(280px, 85vw);
+    height: 100dvh;
+    z-index: 200;
+    transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .estructura--sidebar-open .estructura__sidebar-wrap {
+    left: 0;
+  }
+
+  .estructura {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+
+    &__content {
+      padding: v.$spacing-md;
+      max-width: 100%;
+      overflow-y: visible;
+    }
+  }
 }

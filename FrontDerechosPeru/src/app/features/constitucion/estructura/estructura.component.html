@@ -1,11 +1,30 @@
-<div class="estructura">
-  <app-estructura-sidebar
-    [titulos]="titulos()"
-    [tituloActivoId]="tituloActivo()?.id ?? null"
-    [capituloActivoId]="capituloActivo()?.id ?? null"
-    (tituloSeleccionado)="onTituloSeleccionado($event)"
-    (capituloSeleccionado)="onCapituloSeleccionado($event)"
-  />
+<div class="estructura" [class.estructura--sidebar-open]="sidebarVisible()">
+
+  <!-- Toggle solo visible en móvil -->
+  <button class="estructura__sidebar-toggle" (click)="toggleSidebar()" type="button">
+    @if (sidebarVisible()) {
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      Cerrar índice
+    } @else {
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h12"/></svg>
+      Ver índice
+    }
+  </button>
+
+  <!-- Overlay que cierra el sidebar al tocar fuera -->
+  @if (sidebarVisible()) {
+    <div class="estructura__overlay" (click)="toggleSidebar()"></div>
+  }
+
+  <div class="estructura__sidebar-wrap">
+    <app-estructura-sidebar
+      [titulos]="titulos()"
+      [tituloActivoId]="tituloActivo()?.id ?? null"
+      [capituloActivoId]="capituloActivo()?.id ?? null"
+      (tituloSeleccionado)="onTituloSeleccionado($event)"
+      (capituloSeleccionado)="onCapituloSeleccionado($event)"
+    />
+  </div>
 
   <section class="estructura__content" aria-live="polite">
     @if (tituloActivo()) {

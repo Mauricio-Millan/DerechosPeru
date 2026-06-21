@@ -20,6 +20,17 @@ export class EstructuraComponent implements OnInit {
   readonly capituloActivo = signal<Capitulo | null>(null);
   readonly articulos = signal<Articulo[]>([]);
   readonly cargando = signal(false);
+  readonly sidebarVisible = signal(false);
+
+  toggleSidebar(): void {
+    this.sidebarVisible.update(v => !v);
+  }
+
+  private closeSidebarOnMobile(): void {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      this.sidebarVisible.set(false);
+    }
+  }
 
   ngOnInit(): void {
     this.service.getTitulos().subscribe({
@@ -33,6 +44,7 @@ export class EstructuraComponent implements OnInit {
   }
 
   onTituloSeleccionado(titulo: Titulo): void {
+    this.closeSidebarOnMobile();
     this.tituloActivo.set(titulo);
     this.capituloActivo.set(null);
     this.articulos.set([]);
@@ -48,7 +60,6 @@ export class EstructuraComponent implements OnInit {
         },
       });
     } else if (titulo.capitulos.length === 0) {
-      // Títulos sin capítulos (V y VI): los artículos cuelgan directo del título
       this.cargarArticulosDirectos(titulo.id);
     }
   }
@@ -65,6 +76,7 @@ export class EstructuraComponent implements OnInit {
   }
 
   onCapituloSeleccionado(capitulo: Capitulo): void {
+    this.closeSidebarOnMobile();
     this.capituloActivo.set(capitulo);
     this.cargando.set(true);
     this.articulos.set([]);
