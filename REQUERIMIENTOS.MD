@@ -45,7 +45,8 @@ El portal transforma la Constitución Política del Perú (un activo **explícit
 | **Visitante (anónimo)** | Navegar, buscar, filtrar, consulta guiada, leer foro. |
 | **Ciudadano registrado** | + guardar marcadores, abrir/responder hilos del foro, votar. |
 | **Experto verificado** | + respuestas marcadas como "verificadas" y anotaciones de interpretación sobre artículos. |
-| **Administrador / Editor** | Gestionar artículos, categorías, versiones, moderar foro, verificar expertos, ver métricas. |
+| **Revisor de contenido** | Ingestar una constitución (ETL), revisarla contra el PDF artículo por artículo y aprobarla para publicación (RF-17/18/19). |
+| **Administrador / Editor** | Gestionar artículos, categorías, versiones, moderar foro, verificar expertos, publicar constituciones, ver métricas. |
 
 ## 5. Requerimientos funcionales
 
@@ -71,6 +72,11 @@ El portal transforma la Constitución Política del Perú (un activo **explícit
 - **RF-13 — Gestión de taxonomía:** CRUD de categorías y reasignación masiva.
 - **RF-14 — Moderación del foro:** aprobar/ocultar/eliminar, verificar expertos, reportes de abuso.
 - **RF-15 — Autenticación y perfiles:** registro/login (recomendado Supabase Auth), gestión de rol (cubre historias 4 y 5).
+
+### Ingesta y publicación de constituciones (Módulo ETL — M8)
+- **RF-17 — Ingesta ETL:** un administrador sube el texto fuente de una constitución (.md/.txt); el sistema lo parsea con una máquina de estados (títulos, capítulos, artículos, disposiciones) y genera la estructura, sin publicarla aún (estado *borrador*). Reutiliza la lógica de `etl/etlconstitucion.py`.
+- **RF-18 — Revisión asistida contra el PDF:** vista de doble panel (PDF fuente a la izquierda / contenido extraído a la derecha) para verificar capítulo por capítulo y artículo por artículo. El revisor marca cada artículo como *verificado* o *observado*, puede corregir el texto/sumilla, y se muestra el progreso (p. ej. 150/206 verificados). Incluye validación automática estilo `etl/verify_json.py` (conteos, jerarquía, numeración completa) como reporte de QA.
+- **RF-19 — Flujo de publicación:** una constitución transita por estados `borrador → en_revisión → publicada → archivada`. Solo puede **publicarse** cuando el 100% de sus artículos está *verificado* y pasa el QA. Al publicar, se generan los embeddings y queda visible en el portal (y disponible para el control de versiones, RF-06).
 
 ### Apoyo a la auditoría del conocimiento (diferencial académico)
 - **RF-16 — Métricas y Gap Analysis:** panel con consultas guiadas más frecuentes (historia 3), **búsquedas sin resultados** (brechas de contenido), artículos más consultados/guardados y preguntas del foro sin responder (cuellos de botella / silos). Sustenta las "medidas correctivas" de la Semana 12.

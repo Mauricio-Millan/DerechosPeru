@@ -44,9 +44,24 @@ export class EstructuraComponent implements OnInit {
             list.map(t => t.id === titulo.id ? { ...t, capitulos } : t)
           );
           this.tituloActivo.set({ ...titulo, capitulos });
+          if (capitulos.length === 0) this.cargarArticulosDirectos(titulo.id);
         },
       });
+    } else if (titulo.capitulos.length === 0) {
+      // Títulos sin capítulos (V y VI): los artículos cuelgan directo del título
+      this.cargarArticulosDirectos(titulo.id);
     }
+  }
+
+  private cargarArticulosDirectos(tituloId: number): void {
+    this.cargando.set(true);
+    this.service.getArticulosByTitulo(tituloId).subscribe({
+      next: data => {
+        this.articulos.set(data);
+        this.cargando.set(false);
+      },
+      error: () => this.cargando.set(false),
+    });
   }
 
   onCapituloSeleccionado(capitulo: Capitulo): void {

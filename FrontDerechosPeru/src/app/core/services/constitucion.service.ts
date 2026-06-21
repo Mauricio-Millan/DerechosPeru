@@ -8,9 +8,11 @@ import {
   EstadisticasConstitucion,
   FiltroArticulos,
   ArticulosResponse,
+  ConsultaResponse,
 } from '../models/constitucion.models';
+import { environment } from '../../../environments/environment';
 
-const API_BASE = '/api';
+const API_BASE = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class ConstitucionService {
@@ -28,6 +30,10 @@ export class ConstitucionService {
     return this.http.get<Articulo[]>(`${API_BASE}/capitulos/${capituloId}/articulos`);
   }
 
+  getArticulosByTitulo(tituloId: number): Observable<Articulo[]> {
+    return this.http.get<Articulo[]>(`${API_BASE}/titulos/${tituloId}/articulos`);
+  }
+
   getArticulosByIds(ids: number[]): Observable<Articulo[]> {
     const params = new HttpParams().set('ids', ids.join(','));
     return this.http.get<Articulo[]>(`${API_BASE}/articulos`, { params });
@@ -37,10 +43,16 @@ export class ConstitucionService {
     let params = new HttpParams();
     if (filtros.query) params = params.set('query', filtros.query);
     if (filtros.categoria) params = params.set('categoria', filtros.categoria);
+    if (filtros.limit != null) params = params.set('limit', filtros.limit);
+    if (filtros.offset != null) params = params.set('offset', filtros.offset);
     return this.http.get<ArticulosResponse>(`${API_BASE}/articulos`, { params });
   }
 
   getEstadisticas(): Observable<EstadisticasConstitucion> {
     return this.http.get<EstadisticasConstitucion>(`${API_BASE}/estadisticas`);
+  }
+
+  consultarGuiada(texto: string): Observable<ConsultaResponse> {
+    return this.http.post<ConsultaResponse>(`${API_BASE}/consulta`, { texto });
   }
 }

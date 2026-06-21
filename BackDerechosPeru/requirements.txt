@@ -6,6 +6,7 @@ pgvector>=0.3
 pydantic>=2.7
 pydantic-settings>=2.3
 python-dotenv>=1.0
-openai>=1.40
-# Opcional: solo si EMBEDDING_PROVIDER=local
-# sentence-transformers>=3.0
+# Embeddings locales y gratuitos (Etapa 1)
+sentence-transformers>=3.0
+# Opcional: solo si EMBEDDING_PROVIDER=openai
+# openai>=1.40

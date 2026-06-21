@@ -1,0 +1,203 @@
+@use '../../../../styles/variables' as v;
+
+.cg {
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  background: v.$color-bg;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-md;
+    padding: v.$spacing-md v.$spacing-lg;
+    background: linear-gradient(100deg, v.$color-primary-dark, v.$color-primary-light);
+    color: v.$color-text-on-primary;
+  }
+
+  &__header-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: v.$radius-md;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  &__title {
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-md;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: v.$font-size-xs;
+    opacity: 0.85;
+    margin: 2px 0 0;
+  }
+
+  &__body {
+    padding: v.$spacing-lg;
+    min-height: 280px;
+  }
+
+  // --- Estado inicial ---
+  &__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: v.$spacing-sm;
+    padding: v.$spacing-md 0;
+  }
+
+  &__intro-icon { color: v.$color-text-muted; opacity: 0.55; }
+
+  &__intro-title {
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-lg;
+    color: v.$color-text-primary;
+    margin: 0;
+  }
+
+  &__intro-text {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+    max-width: 520px;
+    margin: 0 0 v.$spacing-md;
+  }
+
+  &__ejemplos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: v.$spacing-sm;
+  }
+
+  &__ejemplo {
+    padding: 8px v.$spacing-md;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-pill;
+    background: v.$color-bg;
+    color: v.$color-text-secondary;
+    font-size: v.$font-size-sm;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+
+    &:hover {
+      border-color: v.$color-primary;
+      color: v.$color-primary;
+      background: v.$color-primary-bg;
+    }
+  }
+
+  // --- Resultados ---
+  &__count {
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    color: v.$color-text-secondary;
+    margin: 0 0 v.$spacing-md;
+  }
+
+  &__result { margin-bottom: v.$spacing-md; }
+
+  &__match {
+    display: inline-block;
+    margin-bottom: v.$spacing-xs;
+    padding: 2px v.$spacing-sm;
+    border-radius: v.$radius-pill;
+    background: v.$color-primary-bg;
+    color: v.$color-primary;
+    font-size: v.$font-size-xs;
+    font-weight: 600;
+  }
+
+  &__empty {
+    text-align: center;
+    color: v.$color-text-muted;
+    font-size: v.$font-size-sm;
+    padding: v.$spacing-xl 0;
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-sm;
+  }
+
+  &__skeleton {
+    height: 72px;
+    border-radius: v.$radius-md;
+    background: linear-gradient(90deg, v.$color-border 25%, v.$color-bg-subtle 50%, v.$color-border 75%);
+    background-size: 200% 100%;
+    animation: cg-shimmer 1.4s infinite;
+  }
+
+  // --- Caja de entrada ---
+  &__input {
+    display: flex;
+    gap: v.$spacing-sm;
+    align-items: flex-end;
+    padding: v.$spacing-md v.$spacing-lg;
+    border-top: 1px solid v.$color-border;
+    background: v.$color-bg-subtle;
+  }
+
+  &__textarea {
+    flex: 1;
+    resize: none;
+    min-height: 48px;
+    max-height: 140px;
+    padding: 10px v.$spacing-md;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-md;
+    font-family: v.$font-family-ui;
+    font-size: v.$font-size-base;
+    color: v.$color-text-primary;
+    background: v.$color-bg;
+    outline: none;
+    transition: border-color v.$transition-fast, box-shadow v.$transition-fast;
+
+    &::placeholder { color: v.$color-text-muted; }
+
+    &:focus {
+      border-color: v.$color-primary;
+      box-shadow: 0 0 0 3px v.$color-primary-bg;
+    }
+  }
+
+  &__submit {
+    display: inline-flex;
+    align-items: center;
+    gap: v.$spacing-xs;
+    padding: 10px v.$spacing-lg;
+    border: none;
+    border-radius: v.$radius-md;
+    background: v.$color-primary;
+    color: v.$color-text-on-primary;
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background v.$transition-fast;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) { background: v.$color-primary-dark; }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+
+  &__disclaimer {
+    padding: v.$spacing-sm v.$spacing-lg v.$spacing-md;
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+    text-align: center;
+    margin: 0;
+  }
+}
+
+@keyframes cg-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

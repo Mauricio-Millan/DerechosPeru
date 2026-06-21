@@ -76,6 +76,7 @@ class Articulo(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     version_id: Mapped[int] = mapped_column(ForeignKey("constitution_version.id", ondelete="CASCADE"))
+    titulo_id: Mapped[int | None] = mapped_column(ForeignKey("titulo.id", ondelete="SET NULL"))
     capitulo_id: Mapped[int | None] = mapped_column(ForeignKey("capitulo.id", ondelete="SET NULL"))
     category_id: Mapped[int | None] = mapped_column(ForeignKey("category.id", ondelete="SET NULL"))
     numero: Mapped[int] = mapped_column(Integer, nullable=False)

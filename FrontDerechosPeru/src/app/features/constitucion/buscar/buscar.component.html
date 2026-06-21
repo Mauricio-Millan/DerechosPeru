@@ -1,87 +1,126 @@
 <div class="buscar">
-  <div class="buscar__filtros">
-    <div class="buscar__search-wrap">
-      <svg class="buscar__search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <div class="buscar__modo">
+    <button
+      class="buscar__modo-btn"
+      [class.buscar__modo-btn--active]="modo() === 'directa'"
+      (click)="modo.set('directa')"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5"/>
         <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
-      <input
-        class="buscar__input"
-        type="search"
-        placeholder="Buscar por número de artículo, título o contenido..."
-        [ngModel]="query"
-        (ngModelChange)="onQueryChange($event)"
-        aria-label="Buscar artículos"
-      />
-    </div>
+      <span>Búsqueda directa</span>
+      <small>Por número, título o contenido</small>
+    </button>
+    <button
+      class="buscar__modo-btn"
+      [class.buscar__modo-btn--active]="modo() === 'guiada'"
+      (click)="modo.set('guiada')"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15l-1.9-4.1L5.5 9l4.6-1.4L12 3z" fill="currentColor"/>
+      </svg>
+      <span>Consulta guiada</span>
+      <small>Describe tu problema</small>
+    </button>
+  </div>
 
-    <div class="buscar__categorias">
-      <span class="buscar__cat-label">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="7" y1="7" x2="7.01" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  @if (modo() === 'guiada') {
+    <app-consulta-guiada />
+  } @else {
+    <div class="buscar__filtros">
+      <div class="buscar__search-wrap">
+        <svg class="buscar__search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        FILTRAR POR CATEGORÍA
-      </span>
+        <input
+          class="buscar__input"
+          type="search"
+          placeholder="Buscar por número de artículo, título o contenido..."
+          [ngModel]="query"
+          (ngModelChange)="onQueryChange($event)"
+          aria-label="Buscar artículos"
+        />
+      </div>
 
-      <div class="buscar__chips">
-        <button
-          class="buscar__chip"
-          [class.buscar__chip--active]="categoriaActiva === null"
-          (click)="selectCategoria(null)"
-        >
-          Todas
-        </button>
+      <div class="buscar__categorias">
+        <span class="buscar__cat-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="7" y1="7" x2="7.01" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          FILTRAR POR CATEGORÍA
+        </span>
 
-        @for (cat of categorias; track cat) {
+        <div class="buscar__chips">
           <button
             class="buscar__chip"
-            [class.buscar__chip--active]="categoriaActiva === cat"
-            [attr.data-cat]="getCategoriaSlug(cat)"
-            (click)="selectCategoria(cat)"
+            [class.buscar__chip--active]="categoriaActiva === null"
+            (click)="selectCategoria(null)"
           >
-            {{ cat }}
+            Todas
           </button>
-        }
+
+          @for (cat of categorias; track cat) {
+            <button
+              class="buscar__chip"
+              [class.buscar__chip--active]="categoriaActiva === cat"
+              [attr.data-cat]="getCategoriaSlug(cat)"
+              (click)="selectCategoria(cat)"
+            >
+              {{ cat }}
+            </button>
+          }
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="buscar__results">
-    <p class="buscar__count" aria-live="polite">
+    <div class="buscar__results">
+      <p class="buscar__count" aria-live="polite">
+        @if (cargando()) {
+          Buscando...
+        } @else {
+          {{ total() }} resultado{{ total() !== 1 ? 's' : '' }}
+          @if (total() > 0) { <span class="buscar__count-detail">(mostrando {{ desde() }}–{{ hasta() }})</span> }
+          @if (query || categoriaActiva) {
+            <span class="buscar__count-detail">
+              @if (query) { para "<strong>{{ query }}</strong>" }
+              @if (categoriaActiva) { en <strong>{{ categoriaActiva }}</strong> }
+            </span>
+          }
+        }
+      </p>
+
       @if (cargando()) {
-        Buscando...
+        <div class="buscar__loading">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="buscar__skeleton"></div>
+          }
+        </div>
       } @else {
-        Mostrando {{ total() === 0 ? 'ningún' : total() + '' }} artículo{{ total() !== 1 ? 's' : '' }}
-        @if (query || categoriaActiva) {
-          <span class="buscar__count-detail">
-            @if (query) { para "<strong>{{ query }}</strong>" }
-            @if (categoriaActiva) { en <strong>{{ categoriaActiva }}</strong> }
-          </span>
+        @for (articulo of articulos(); track articulo.id) {
+          <app-article-card [articulo]="articulo" />
+        }
+
+        @if (articulos().length === 0) {
+          <div class="buscar__empty">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+            <p>No se encontraron artículos con los filtros actuales.</p>
+          </div>
+        }
+
+        @if (totalPages() > 1) {
+          <nav class="buscar__pagination" aria-label="Paginación">
+            <button class="buscar__page-btn" [disabled]="page() === 0" (click)="irPagina(page() - 1)">‹ Anterior</button>
+            <span class="buscar__page-info">Página {{ page() + 1 }} de {{ totalPages() }}</span>
+            <button class="buscar__page-btn" [disabled]="page() >= totalPages() - 1" (click)="irPagina(page() + 1)">Siguiente ›</button>
+          </nav>
         }
       }
-    </p>
-
-    @if (cargando()) {
-      <div class="buscar__loading">
-        @for (i of [1,2,3,4]; track i) {
-          <div class="buscar__skeleton"></div>
-        }
-      </div>
-    }
-
-    @for (articulo of articulos(); track articulo.id) {
-      <app-article-card [articulo]="articulo" />
-    }
-
-    @if (!cargando() && articulos().length === 0) {
-      <div class="buscar__empty">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.2"/>
-          <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        </svg>
-        <p>No se encontraron artículos con los filtros actuales.</p>
-      </div>
-    }
-  </div>
+    </div>
+  }
 </div>

@@ -5,9 +5,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from sqlalchemy.orm import selectinload
+
 from app.core.config import settings
 from app.models import Articulo, ConsultaLog
-from app.schemas.constitution import ArticuloMatch, CategoryOut
+from app.schemas.constitution import ArticuloMatch
 from app.services.embeddings import embed_query
 
 
@@ -37,9 +39,9 @@ async def consultar(db: AsyncSession, texto: str) -> list[ArticuloMatch]:
             ArticuloMatch(
                 id=art.id,
                 numero=art.numero,
-                sumilla=art.sumilla,
+                titulo=art.sumilla or f"Artículo {art.numero}",
                 contenido=art.contenido,
-                category=CategoryOut.model_validate(art.category) if art.category else None,
+                categoria=art.category.name if art.category else "",
                 similarity=round(similarity, 4),
             )
         )

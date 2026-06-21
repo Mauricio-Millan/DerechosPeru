@@ -1,0 +1,11 @@
+.env
+.env.*
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+etl/
+scripts/
+sql/
+.agents/
+*.md

@@ -1,78 +1,99 @@
-"""Vista 'Buscar / Filtrar' (RF-02, RF-03) y detalle de artículo."""
-from fastapi import APIRouter, Depends, HTTPException, Query
+"""Artículos: por capítulo, búsqueda/filtro y por ids (contrato del front)."""
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.api.helpers import articulo_to_out
 from app.core.database import get_db
 from app.models import Articulo, Category, ConstitutionVersion
-from app.schemas.constitution import ArticuloListOut, ArticuloOut, CategoryOut
+from app.schemas.constitution import ArticuloOut, ArticulosResponse
 
 router = APIRouter(tags=["articulos"])
 
 
 async def _current_version_id(db: AsyncSession) -> int | None:
-    stmt = select(ConstitutionVersion.id).where(ConstitutionVersion.is_current.is_(True))
-    return (await db.execute(stmt)).scalar_one_or_none()
-
-
-@router.get("/categorias", response_model=list[CategoryOut])
-async def list_categorias(db: AsyncSession = Depends(get_db)):
-    cats = (
-        await db.execute(select(Category).order_by(Category.display_order, Category.id))
-    ).scalars().all()
-    return cats
-
-
-@router.get("/articulos", response_model=list[ArticuloListOut])
-async def buscar_articulos(
-    q: str | None = Query(None, description="Texto o número de artículo"),
-    categoria: str | None = Query(None, description="slug de categoría"),
-    limit: int = Query(50, le=206),
-    offset: int = 0,
-    db: AsyncSession = Depends(get_db),
-):
-    """Búsqueda directa (full-text en español) + filtro por categoría."""
-    version_id = await _current_version_id(db)
-
-    stmt = (
-        select(Articulo)
-        .options(selectinload(Articulo.category))
-        .where(Articulo.version_id == version_id, Articulo.is_published.is_(True))
-    )
-
-    if categoria:
-        stmt = stmt.join(Category).where(Category.slug == categoria)
-
-    if q:
-        q = q.strip()
-        if q.isdigit():
-            stmt = stmt.where(Articulo.numero == int(q))
-        else:
-            # Full-text en español sobre la columna generada search_tsv
-            ts_query = func.plainto_tsquery("spanish", q)
-            stmt = stmt.where(text("search_tsv @@ plainto_tsquery('spanish', :q)")).params(q=q)
-            stmt = stmt.order_by(func.ts_rank(text("search_tsv"), ts_query).desc())
-
-    stmt = stmt.order_by(Articulo.numero).limit(limit).offset(offset)
-    arts = (await db.execute(stmt)).scalars().all()
-    return arts
-
-
-@router.get("/articulos/{numero}", response_model=ArticuloOut)
-async def get_articulo(numero: int, db: AsyncSession = Depends(get_db)):
-    version_id = await _current_version_id(db)
-    art = (
+    return (
         await db.execute(
-            select(Articulo)
-            .options(selectinload(Articulo.category))
-            .where(
-                Articulo.version_id == version_id,
-                Articulo.numero == numero,
-                Articulo.is_published.is_(True),
-            )
+            select(ConstitutionVersion.id).where(ConstitutionVersion.is_current.is_(True))
         )
     ).scalar_one_or_none()
-    if art is None:
-        raise HTTPException(status_code=404, detail="Artículo no encontrado")
-    return art
+
+
+def _base_query():
+    return select(Articulo).options(
+        selectinload(Articulo.category), selectinload(Articulo.capitulo)
+    )
+
+
+@router.get("/capitulos/{capitulo_id}/articulos", response_model=list[ArticuloOut])
+async def articulos_por_capitulo(capitulo_id: int, db: AsyncSession = Depends(get_db)):
+    arts = (
+        await db.execute(
+            _base_query()
+            .where(Articulo.capitulo_id == capitulo_id, Articulo.is_published.is_(True))
+            .order_by(Articulo.numero)
+        )
+    ).scalars().all()
+    return [articulo_to_out(a) for a in arts]
+
+
+# response_model=None: este endpoint devuelve list[ArticuloOut] cuando se pasan ids
+# (vista Guardados) y ArticulosResponse cuando se busca/filtra (vista Buscar).
+@router.get("/articulos", response_model=None)
+async def articulos(
+    ids: str | None = Query(None, description="IDs separados por coma (vista Guardados)"),
+    query: str | None = Query(None),
+    categoria: str | None = Query(None, description="nombre de la categoría"),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: AsyncSession = Depends(get_db),
+) -> list[ArticuloOut] | ArticulosResponse:
+    version_id = await _current_version_id(db)
+
+    if ids:
+        id_list = [int(x) for x in ids.split(",") if x.strip().isdigit()]
+        if not id_list:
+            return []
+        arts = (
+            await db.execute(_base_query().where(Articulo.id.in_(id_list)))
+        ).scalars().all()
+        orden = {aid: i for i, aid in enumerate(id_list)}
+        arts.sort(key=lambda a: orden.get(a.id, 0))
+        return [articulo_to_out(a) for a in arts]
+
+    # Filtros comunes para conteo y página
+    filters = [Articulo.version_id == version_id, Articulo.is_published.is_(True)]
+    join_cat = bool(categoria)
+    ts_param: str | None = None
+    rank_order = None
+    if categoria:
+        filters.append(Category.name == categoria)
+    if query:
+        q = query.strip()
+        if q.isdigit():
+            filters.append(Articulo.numero == int(q))
+        else:
+            ts_param = q
+            filters.append(text("search_tsv @@ plainto_tsquery('spanish', :q)"))
+            rank_order = func.ts_rank(text("search_tsv"), func.plainto_tsquery("spanish", q)).desc()
+
+    count_stmt = select(func.count(Articulo.id))
+    if join_cat:
+        count_stmt = count_stmt.join(Category)
+    count_stmt = count_stmt.where(*filters)
+    if ts_param is not None:
+        count_stmt = count_stmt.params(q=ts_param)
+    total = await db.scalar(count_stmt)
+
+    page_stmt = _base_query()
+    if join_cat:
+        page_stmt = page_stmt.join(Category)
+    page_stmt = page_stmt.where(*filters)
+    if ts_param is not None:
+        page_stmt = page_stmt.params(q=ts_param)
+    page_stmt = page_stmt.order_by(rank_order if rank_order is not None else Articulo.numero)
+    page_stmt = page_stmt.limit(limit).offset(offset)
+
+    arts = (await db.execute(page_stmt)).scalars().all()
+    return ArticulosResponse(data=[articulo_to_out(a) for a in arts], total=total or 0)

@@ -4,6 +4,47 @@
   padding: v.$spacing-xl;
   max-width: 960px;
 
+  &__modo {
+    display: flex;
+    gap: v.$spacing-sm;
+    background: v.$color-bg;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-lg;
+    padding: v.$spacing-xs;
+    margin-bottom: v.$spacing-lg;
+  }
+
+  &__modo-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: v.$spacing-sm;
+    padding: 10px v.$spacing-md;
+    border: none;
+    border-radius: v.$radius-md;
+    background: transparent;
+    color: v.$color-text-secondary;
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+
+    small {
+      font-weight: 400;
+      font-size: v.$font-size-xs;
+      opacity: 0.75;
+    }
+
+    &:hover:not(.buscar__modo-btn--active) { background: v.$color-bg-subtle; }
+
+    &--active {
+      background: v.$color-primary;
+      color: v.$color-text-on-primary;
+      small { opacity: 0.85; }
+    }
+  }
+
   &__filtros {
     background: v.$color-bg;
     border: 1px solid v.$color-border;
@@ -81,32 +122,43 @@
     cursor: pointer;
     transition: all v.$transition-fast;
 
-    &:hover {
-      border-color: v.$color-primary;
-      color: v.$color-primary;
-      background: v.$color-primary-bg;
-    }
-
+    // "Todas": activo en color primario
     &--active {
       background: v.$color-primary;
       color: v.$color-text-on-primary;
       border-color: v.$color-primary;
 
-      &:hover {
-        background: v.$color-primary-dark;
-      }
+      &:hover { background: v.$color-primary-dark; }
+    }
+  }
 
-      // Colores activos por categoría cuando no es el chip "Todas"
-      &[data-cat='derechos-fundamentales']    { background: v.$cat-derechos-fundamentales; border-color: v.$cat-derechos-fundamentales; }
-      &[data-cat='estado-y-nacion']           { background: v.$cat-estado-nacion; border-color: v.$cat-estado-nacion; }
-      &[data-cat='economia']                  { background: v.$cat-economia; border-color: v.$cat-economia; }
-      &[data-cat='regimen-politico']          { background: v.$cat-regimen-politico; border-color: v.$cat-regimen-politico; }
-      &[data-cat='poder-legislativo']         { background: v.$cat-poder-legislativo; border-color: v.$cat-poder-legislativo; }
-      &[data-cat='poder-ejecutivo']           { background: v.$cat-poder-ejecutivo; border-color: v.$cat-poder-ejecutivo; }
-      &[data-cat='poder-judicial']            { background: v.$cat-poder-judicial; border-color: v.$cat-poder-judicial; }
-      &[data-cat='descentralizacion']         { background: v.$cat-descentralizacion; border-color: v.$cat-descentralizacion; }
-      &[data-cat='garantias-constitucionales']{ background: v.$cat-garantias-constitucionales; border-color: v.$cat-garantias-constitucionales; }
-      &[data-cat='reforma-constitucional']    { background: v.$cat-reforma-constitucional; border-color: v.$cat-reforma-constitucional; }
+  // Color por categoría: borde+texto coloreados en reposo, relleno al activarse
+  $cats: (
+    'derechos-fundamentales': v.$cat-derechos-fundamentales,
+    'estado-y-nacion': v.$cat-estado-nacion,
+    'economia': v.$cat-economia,
+    'regimen-politico': v.$cat-regimen-politico,
+    'poder-legislativo': v.$cat-poder-legislativo,
+    'poder-ejecutivo': v.$cat-poder-ejecutivo,
+    'poder-judicial': v.$cat-poder-judicial,
+    'descentralizacion': v.$cat-descentralizacion,
+    'garantias-constitucionales': v.$cat-garantias-constitucionales,
+    'reforma-constitucional': v.$cat-reforma-constitucional,
+  );
+
+  @each $slug, $color in $cats {
+    &__chip[data-cat='#{$slug}'] {
+      color: $color;
+      border-color: rgba($color, 0.4);
+      background: rgba($color, 0.06);
+
+      &:hover { background: rgba($color, 0.14); border-color: $color; }
+
+      &.buscar__chip--active {
+        color: #fff;
+        background: $color;
+        border-color: $color;
+      }
     }
   }
 
@@ -150,6 +202,38 @@
     p {
       font-size: v.$font-size-sm;
     }
+  }
+
+  &__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: v.$spacing-md;
+    margin-top: v.$spacing-lg;
+  }
+
+  &__page-btn {
+    padding: 6px v.$spacing-md;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-md;
+    background: v.$color-bg;
+    color: v.$color-text-secondary;
+    font-size: v.$font-size-sm;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+
+    &:hover:not(:disabled) {
+      border-color: v.$color-primary;
+      color: v.$color-primary;
+    }
+
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+  }
+
+  &__page-info {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
   }
 }
 

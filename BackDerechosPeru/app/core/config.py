@@ -23,10 +23,10 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = ["http://localhost:4200"]
 
     # --- Embeddings ---
-    # Proveedor: "openai" (compatible con Azure OpenAI) | "local" | "fake"
-    EMBEDDING_PROVIDER: str = "openai"
-    EMBEDDING_MODEL: str = "text-embedding-3-small"
-    EMBEDDING_DIM: int = 1536
+    # Proveedor: "local" (gratis, offline) | "openai" (Azure OpenAI) | "fake"
+    EMBEDDING_PROVIDER: str = "local"
+    EMBEDDING_MODEL: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    EMBEDDING_DIM: int = 384
 
     # OpenAI / Azure OpenAI (la lib openai detecta Azure por estas vars)
     OPENAI_API_KEY: str | None = None

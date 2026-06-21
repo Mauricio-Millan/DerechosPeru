@@ -60,9 +60,26 @@ export interface EstadisticasConstitucion {
 export interface FiltroArticulos {
   query?: string;
   categoria?: CategoriaArticulo | null;
+  limit?: number;
+  offset?: number;
 }
 
 export interface ArticulosResponse {
   data: Articulo[];
   total: number;
+}
+
+export interface ConsultaResultado {
+  id: number;
+  numero: number;
+  titulo: string;
+  contenido: string;
+  categoria: string;
+  similarity: number;
+}
+
+export interface ConsultaResponse {
+  query: string;
+  resultados: ConsultaResultado[];
+  aviso_legal: string;
 }

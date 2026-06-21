@@ -172,8 +172,10 @@ async def seed(do_embed: bool, do_reset: bool) -> None:
             cap = cap_by_key.get(key)
             cap_denom = cap_denom_by_key.get(key, "")
             slug = category_for_articulo(a["titulo_romano"], cap_denom)
+            tit = titulo_by_romano.get(a["titulo_romano"])
             obj = Articulo(
                 version_id=version.id,
+                titulo_id=tit.id if tit else None,
                 capitulo_id=cap.id if cap else None,
                 category_id=cat_by_slug[slug].id,
                 numero=a["numero"],

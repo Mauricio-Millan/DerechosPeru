@@ -23,7 +23,7 @@
         }
       </div>
 
-      @if (!capituloActivo() && tituloActivo()!.capitulos) {
+      @if (!capituloActivo() && tituloActivo()!.capitulos && tituloActivo()!.capitulos!.length > 0) {
         <div class="estructura__capitulos-list">
           @for (cap of tituloActivo()!.capitulos!; track cap.id) {
             <button class="estructura__cap-card" (click)="onCapituloSeleccionado(cap)">
@@ -37,6 +37,25 @@
             </button>
           }
         </div>
+      }
+
+      <!-- Títulos sin capítulos (V, VI): artículos directos del título -->
+      @if (!capituloActivo() && tituloActivo()!.capitulos && tituloActivo()!.capitulos!.length === 0) {
+        @if (cargando()) {
+          <div class="estructura__loading" aria-label="Cargando artículos">
+            @for (i of [1,2,3]; track i) {
+              <div class="estructura__skeleton"></div>
+            }
+          </div>
+        }
+
+        @for (articulo of articulos(); track articulo.id) {
+          <app-article-card [articulo]="articulo" />
+        }
+
+        @if (!cargando() && articulos().length === 0) {
+          <p class="estructura__vacio">No hay artículos en este título.</p>
+        }
       }
 
       @if (capituloActivo()) {

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv etlconstitucion.py BackDerechosPeru/etl/etlconstitucion.py)",
+      "Bash(mv verify_json.py BackDerechosPeru/etl/verify_json.py)",
+      "Bash(touch BackDerechosPeru/etl/__init__.py)",
+      "Bash(ls *.py)"
+    ]
+  },
+  "enabledPlugins": {
+    "ponytail@ponytail": true
+  }
+}
