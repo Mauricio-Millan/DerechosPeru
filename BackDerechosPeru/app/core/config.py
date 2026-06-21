@@ -52,6 +52,13 @@ class Settings(BaseSettings):
     GUIDED_MATCH_COUNT: int = 5
     GUIDED_MIN_SIMILARITY: float = 0.25
 
+    # --- Auth (Supabase emite el JWT HS256; el backend solo lo verifica) ---
+    # Supabase dashboard → Settings → API → JWT Secret
+    SUPABASE_JWT_SECRET: str | None = None
+    JWT_ALGORITHM: str = "HS256"
+    # 'authenticated' es la audiencia por defecto de los JWT de Supabase
+    JWT_AUDIENCE: str = "authenticated"
+
 
 @lru_cache
 def get_settings() -> Settings:

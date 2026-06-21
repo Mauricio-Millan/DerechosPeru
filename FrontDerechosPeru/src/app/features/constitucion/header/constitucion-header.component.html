@@ -18,12 +18,28 @@
       </div>
     </div>
 
-    <div class="header__badge" aria-label="206 artículos en 6 títulos">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="currentColor" stroke-width="1.5"/>
-      </svg>
-      206 Artículos &nbsp;·&nbsp; 6 Títulos
+    <div class="header__right">
+      <div class="header__badge" aria-label="206 artículos en 6 títulos">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        206 Artículos &nbsp;·&nbsp; 6 Títulos
+      </div>
+
+      <div class="header__auth">
+        @if (auth.isLoggedIn()) {
+          @if (auth.isAdmin()) {
+            <a routerLink="/admin/usuarios" class="header__auth-link">Usuarios</a>
+          }
+          <span class="header__auth-user" [title]="auth.user()?.email">
+            {{ auth.user()?.email }}
+          </span>
+          <button type="button" class="header__auth-btn" (click)="logout()">Salir</button>
+        } @else {
+          <a routerLink="/auth" class="header__auth-btn header__auth-btn--primary">Iniciar sesión</a>
+        }
+      </div>
     </div>
   </div>
 

@@ -70,6 +70,54 @@
     white-space: nowrap;
   }
 
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-md;
+  }
+
+  &__auth {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-sm;
+    font-family: v.$font-family-ui;
+    font-size: v.$font-size-sm;
+  }
+
+  &__auth-user {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  &__auth-link {
+    color: v.$color-gold;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  &__auth-btn {
+    padding: 6px v.$spacing-md;
+    border-radius: v.$radius-md;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: v.$color-text-on-primary;
+    font-family: v.$font-family-ui;
+    font-size: v.$font-size-sm;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &--primary {
+      background: v.$color-gold;
+      border-color: v.$color-gold;
+      color: v.$color-primary;
+      font-weight: 600;
+    }
+  }
+
   &__line {
     height: 2px;
     background: linear-gradient(90deg, v.$color-gold 0%, rgba(v.$color-gold, 0.3) 60%, transparent 100%);

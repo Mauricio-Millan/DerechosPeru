@@ -62,7 +62,7 @@ consulta_log   (bitácora de consultas guiadas → alimenta M7)
 
 | Tabla | Sprint | Para |
 |---|---|---|
-| `profile` (extiende `auth.users` de Supabase) | S2 | Rol del usuario (ciudadano/experto/admin) |
+| `profile` (extiende `auth.users` de Supabase) | S2 | Rol del usuario (enum de 5: `ciudadano`/`redactor`/`experto`/`editor`/`admin` — ver [ROLES.md](ROLES.md)) |
 | `bookmark` | S2 | Marcadores (`user_id`, `articulo_id`) |
 | `forum_thread`, `forum_post`, `post_vote` | S3 | Foro y votación |
 | `expert_annotation` | S3 | Anotaciones de expertos sobre artículos |
@@ -182,13 +182,18 @@ Angular (Consulta guiada)
 
 ## 6. Backlog de Sprints siguientes (resumen)
 
-### Sprint 2 — M3 · Identidad & Marcadores
+### Sprint 2 — M3 · Identidad, Marcadores & fundación RBAC
+> Roles canónicos: ver [ROLES.md](ROLES.md). Alcance: fundación mínima (sin guards especulativos).
 | ID | Tarea | Func. backend | Estado |
 |---|---|---|---|
-| T3.1 | Tabla `profile` + `bookmark` + RLS por usuario | SQL | ⬜ |
-| T3.2 | Integrar Supabase Auth (registro/login) | `core/auth.py` (verificación de JWT) | ⬜ |
-| T3.3 | Endpoints de marcadores (`GET/POST/DELETE /api/bookmarks`) | `routes/bookmarks.py` | ⬜ |
-| T3.4 | Front: login, sesión, vista "Guardados" | Angular | ⬜ |
+| T3.1 | Tabla `profile` + `bookmark` + trigger + RLS por usuario | `sql/04_auth.sql` | ✅ (código) / ⬜ ejecutar en Supabase |
+| T3.2 | Verificación de JWT de Supabase + `require_role()` reutilizable | `core/auth.py` | ✅ |
+| T3.3 | Endpoints de marcadores (`GET/POST/DELETE /api/bookmarks`) + `GET /api/me` | `routes/bookmarks.py`, `routes/cuenta.py` | ✅ |
+| T3.4 | Endpoint admin de asignación de rol (`GET`/`PATCH /api/admin/usuarios`) | `routes/admin.py` | ✅ |
+| T3.5 | Front: login/registro, sesión en header, interceptor JWT | `auth.service`, `auth.interceptor`, `features/auth` | ✅ |
+| T3.6 | Front: "Guardados" persistente (migra localStorage→backend con fallback) | `guardados.service` | ✅ |
+| T3.7 | Front: vista admin `admin/usuarios` + guard de ruta | `features/admin`, `core/guards` | ✅ |
+| T3.8 | Configurar `SUPABASE_JWT_SECRET` en `.env` y en el Container App | Config/DevOps | ⬜ |
 
 ### Sprint 3 — M5 · Foro & Conocimiento Experto
 | ID | Tarea | Func. backend | Estado |
@@ -316,7 +321,8 @@ Usuario ─► Azure Static Web Apps (Angular)
 | M0 Infraestructura | 🟡 (SQL aplicado en Supabase ✅; `.env` creado — falta `DATABASE_URL` real) |
 | M1 Núcleo Constitucional | 🟡 (backend listo; falta ejecutar seed + front) |
 | M2 Consulta Guiada IA | 🟡 (backend listo y verificado; falta front) |
-| M3–M7 | ⬜ Pendientes |
+| M3 Identidad, Marcadores & RBAC | 🟡 (código back+front listo; falta ejecutar `04_auth.sql` y configurar `SUPABASE_JWT_SECRET`) |
+| M4–M7 | ⬜ Pendientes |
 | M8 Ingesta ETL + Revisión vs PDF | ⬜ Pendiente (scripts base ya en `etl/`) |
 
 **Próximo paso crítico:** completar **T0.4 + T0.5 + T1.2** (Supabase + `.env` + seed) para tener datos reales, y luego arrancar el front (TF1.x).

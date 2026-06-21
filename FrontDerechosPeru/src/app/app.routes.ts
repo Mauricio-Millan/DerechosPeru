@@ -1,6 +1,18 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
+  {
+    path: 'auth',
+    loadComponent: () =>
+      import('./features/auth/auth.component').then(m => m.AuthComponent),
+  },
+  {
+    path: 'admin/usuarios',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./features/admin/usuarios.component').then(m => m.UsuariosComponent),
+  },
   {
     path: 'constitucion',
     loadComponent: () =>

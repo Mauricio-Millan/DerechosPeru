@@ -1,30 +1,69 @@
-# Despliegue en Azure (Container Apps + Static Web Apps)
+# Despliegue en Azure — Estado actual y CI/CD
 
 > Monorepo: **back** (FastAPI) → Azure Container Apps · **front** (Angular) → Azure Static Web Apps · **BD** → Supabase.
-> Comandos en **PowerShell**. Ejecútalos tú (el `az login` abre el navegador).
 
-## 0. Prerrequisitos (una sola vez)
+## URLs de producción
+
+| Recurso | URL |
+|---|---|
+| Frontend | https://derechosperu.mmillan.tech |
+| Backend (API) | https://backderechosperu.mmillan.tech/api |
+| Docs interactivos | https://backderechosperu.mmillan.tech/docs |
+
+## Despliegue continuo (ya configurado)
+
+**No se necesita ningún comando manual.** Cada `git push` a `main` dispara el workflow correspondiente:
+
+| Qué cambió | Workflow | Resultado |
+|---|---|---|
+| `BackDerechosPeru/**` | `back-derechos-AutoDeployTrigger-...yml` | Build Docker → ACR → redeploy Container App |
+| `FrontDerechosPeru/**` | `frontend-swa.yml` | Build Angular → Static Web Apps |
+
+El backend usa la imagen `derechosperuacr2026.azurecr.io/back-derechos:<sha>` con tag por commit SHA.
+
+---
+
+## Recursos Azure existentes
+
+| Recurso | Nombre | Tipo |
+|---|---|---|
+| Resource Group | `rg-derechosperu` | Contenedor de todo |
+| Container Registry | `derechosperuacr2026` | ACR Basic |
+| Container App | `back-derechos` | FastAPI + embeddings |
+| CA Environment | `cae-derechos` | Entorno compartido |
+| Static Web App | `swa-derechos` | Angular SPA |
+
+## GitHub Secrets necesarios
+
+| Secret | Usado por |
+|---|---|
+| `BACKDERECHOS_AZURE_CLIENT_ID` | backend workflow (OIDC login) |
+| `BACKDERECHOS_AZURE_TENANT_ID` | backend workflow (OIDC login) |
+| `BACKDERECHOS_AZURE_SUBSCRIPTION_ID` | backend workflow (OIDC login) |
+| `BACKDERECHOS_REGISTRY_USERNAME` | backend workflow (push a ACR) |
+| `BACKDERECHOS_REGISTRY_PASSWORD` | backend workflow (push a ACR) |
+| `SWA_DEPLOY_TOKEN` | frontend workflow (deploy a SWA) |
+
+---
+
+## Si necesitas recrear todo desde cero
+
+### 0. Prerrequisitos
 
 ```powershell
-# Instalar Azure CLI
 winget install -e --id Microsoft.AzureCLI
-# Cierra y reabre la terminal después de instalar.
-
-az login                      # abre el navegador
-az account show               # confirma la suscripción (Azure for Students)
-
-# Extensión de Container Apps y proveedores
+az login
 az extension add --name containerapp --upgrade
 az provider register -n Microsoft.App --wait
 az provider register -n Microsoft.OperationalInsights --wait
 ```
 
-## 1. Variables
+### 1. Variables base
 
 ```powershell
 $RG    = "rg-derechosperu"
 $LOC   = "eastus2"
-$ACR   = "derechosacr" + (Get-Random -Maximum 99999)   # debe ser único global
+$ACR   = "derechosperuacr2026"
 $APP   = "back-derechos"
 $ENVCA = "cae-derechos"
 $SWA   = "swa-derechos"
@@ -32,89 +71,101 @@ $SWA   = "swa-derechos"
 az group create -n $RG -l $LOC
 ```
 
-## 2. Backend → Container Registry + Container Apps
+### 2. Container Registry
 
 ```powershell
-# Registro y build de la imagen EN LA NUBE (no necesitas Docker local)
 az acr create -n $ACR -g $RG --sku Basic --admin-enabled true
-az acr build -r $ACR -t backderechos:latest ./BackDerechosPeru
 
-# Entorno de Container Apps
-az containerapp env create -n $ENVCA -g $RG -l $LOC
-
-# Credenciales del registro
 $ACR_SERVER = az acr show -n $ACR --query loginServer -o tsv
 $ACR_USER   = az acr credential show -n $ACR --query username -o tsv
 $ACR_PASS   = az acr credential show -n $ACR --query "passwords[0].value" -o tsv
+```
 
-# Tu cadena de Supabase (la misma del .env, pooler 6543)
-$DBURL = "postgresql+asyncpg://postgres.ibwxubyunahygfsgljdg:--88oscar88--@aws-1-us-east-2.pooler.supabase.com:6543/postgres"
+### 3. Backend (Container Apps)
 
-# Crear la app (scale-to-zero, 1 vCPU / 2 GiB por el modelo de embeddings)
+```powershell
+az containerapp env create -n $ENVCA -g $RG -l $LOC
+
+# Leer DATABASE_URL desde .env local (no hardcodear)
+$DBURL = (Get-Content BackDerechosPeru/.env | Where-Object { $_ -match "^DATABASE_URL=" }) -replace "DATABASE_URL=",""
+
+$FRONT_URL = "https://derechosperu.mmillan.tech"
+
 az containerapp create `
   -n $APP -g $RG --environment $ENVCA `
-  --image "$ACR_SERVER/backderechos:latest" `
+  --image "$ACR_SERVER/back-derechos:latest" `
   --registry-server $ACR_SERVER --registry-username $ACR_USER --registry-password $ACR_PASS `
   --target-port 8000 --ingress external `
   --min-replicas 0 --max-replicas 2 --cpu 1 --memory 2Gi `
   --secrets "db-url=$DBURL" `
-  --env-vars DATABASE_URL=secretref:db-url DEBUG=false `
+  --env-vars DATABASE_URL=secretref:db-url `
+             DEBUG=false `
              EMBEDDING_PROVIDER=local `
              EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 `
              EMBEDDING_DIM=384 `
-             'CORS_ORIGINS=["https://placeholder"]'
-
-# URL pública del backend
-$BACK_URL = az containerapp show -n $APP -g $RG --query properties.configuration.ingress.fqdn -o tsv
-Write-Output "Backend: https://$BACK_URL"
-# Pruébalo:
-#   https://$BACK_URL/health   y   https://$BACK_URL/docs
+             "CORS_ORIGINS=$FRONT_URL,https://witty-desert-0c59a5b0f.7.azurestaticapps.net"
 ```
 
-> El primer arranque es lento (carga torch + modelo). Las siguientes peticiones van rápidas hasta que escala a 0 por inactividad.
-
-## 3. Frontend → Static Web Apps
+### 4. Dominio del backend
 
 ```powershell
-# 1) Pon la URL real del backend en el front
-#    Edita FrontDerechosPeru/src/environments/environment.prod.ts
-#    y reemplaza __BACKEND_URL__ por el valor de $BACK_URL (sin https://).
+az containerapp hostname add -n $APP -g $RG --hostname backderechosperu.mmillan.tech
+az containerapp hostname bind -n $APP -g $RG --hostname backderechosperu.mmillan.tech --validation-method CNAME
+```
 
-# 2) Build de producción
-cd FrontDerechosPeru
-npm ci
-npm run build          # genera dist/FrontDerechosPeru/browser
-cd ..
+> En Cloudflare: CNAME `backderechosperu` → FQDN del Container App (DNS only, nube gris).
 
-# 3) Crear la Static Web App y desplegar el build estático
+### 5. Frontend (Static Web Apps)
+
+```powershell
 az staticwebapp create -n $SWA -g $RG -l $LOC
 $TOKEN = az staticwebapp secrets list -n $SWA -g $RG --query "properties.apiKey" -o tsv
-npx @azure/static-web-apps-cli deploy ./FrontDerechosPeru/dist/FrontDerechosPeru/browser `
-  --deployment-token $TOKEN --env production
-
-$FRONT_URL = az staticwebapp show -n $SWA -g $RG --query defaultHostname -o tsv
-Write-Output "Frontend: https://$FRONT_URL"
+# Guardar $TOKEN como secret SWA_DEPLOY_TOKEN en GitHub
 ```
 
-## 4. Conectar CORS (back ↔ front)
+El workflow `frontend-swa.yml` hace el build y deploy automáticamente en el siguiente push.
+
+### 6. Dominio del frontend
 
 ```powershell
-# Autoriza el dominio del front en el backend
-az containerapp update -n $APP -g $RG `
-  --set-env-vars "CORS_ORIGINS=[`"https://$FRONT_URL`"]"
+az staticwebapp hostname set -n $SWA -g $RG --hostname derechosperu.mmillan.tech
 ```
 
-Abre `https://$FRONT_URL` y prueba estructura, búsqueda y consulta guiada.
+> En Cloudflare: CNAME `derechosperu` → hostname de SWA (DNS only, nube gris).
 
-## Orden y por qué
-1. **Backend primero** → obtienes su URL.
-2. **Front** con esa URL (`environment.prod.ts`) → build → deploy → obtienes la URL del front.
-3. **CORS** del backend apuntando al front.
+### 7. CI/CD automático
+
+Configurar en Azure Portal → Container App `back-derechos` → **Deployment** → **Continuous deployment**:
+- Registro: `derechosperuacr2026`
+- Imagen: `back-derechos`
+- Dockerfile: `./BackDerechosPeru/Dockerfile`
+
+Azure crea el workflow y agrega los secrets de OIDC al repo automáticamente.
+
+---
+
+## Variables de entorno del backend en producción
+
+Actualizarlas sin redesplegar:
+
+```powershell
+az containerapp update -n $APP -g $RG `
+  --set-env-vars "CORS_ORIGINS=https://derechosperu.mmillan.tech,https://witty-desert-0c59a5b0f.7.azurestaticapps.net"
+```
+
+## Apagar para no gastar créditos
+
+```powershell
+# Solo el backend (el front y ACR siguen activos)
+az containerapp update -n $APP -g $RG --min-replicas 0 --max-replicas 0
+
+# Todo (irreversible, borra todo el grupo)
+az group delete -n $RG --yes
+```
 
 ## Notas
-- **Costo:** ACR Basic (~USD 5/mes) y Container Apps por uso; cubierto por los créditos de *Azure for Students*. Static Web Apps tiene tier gratuito.
-- **Apagar para no gastar:** `az group delete -n $RG --yes` borra todo el grupo de recursos.
-- **Actualizar backend:** repite `az acr build ...` y luego
-  `az containerapp update -n $APP -g $RG --image $ACR_SERVER/backderechos:latest`.
-- **Actualizar front:** `npm run build` + el `swa deploy` de nuevo.
-- **SSR:** se despliega solo el build estático (`/browser`); el SSR de Angular se ignora en este hosting (suficiente para el portal).
+
+- **Cold start**: el primer request después de inactividad tarda ~75s (carga torch + modelo de embeddings). Es normal con `min-replicas=0`.
+- **ACR Tasks bloqueado en Azure for Students**: el build se hace en GitHub Actions (runner Linux), no en ACR. Por eso existe el workflow `back-derechos-AutoDeployTrigger-...yml`.
+- **Angular SSR**: el build genera `index.csr.html`; el workflow lo copia a `index.html` antes de subir a SWA.
+- **Supabase**: la BD vive en Supabase (Postgres + pgvector). La `DATABASE_URL` apunta al pooler de Supavisor (puerto 6543, transaction mode).

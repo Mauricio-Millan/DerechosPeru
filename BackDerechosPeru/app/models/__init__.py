@@ -1,3 +1,4 @@
+from app.models.auth import ROLES, Bookmark, Profile
 from app.models.constitution import (
     Articulo,
     Capitulo,
@@ -14,4 +15,7 @@ __all__ = [
     "Capitulo",
     "Articulo",
     "ConsultaLog",
+    "Profile",
+    "Bookmark",
+    "ROLES",
 ]
