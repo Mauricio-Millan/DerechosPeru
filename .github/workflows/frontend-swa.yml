@@ -1,0 +1,43 @@
+name: Deploy Frontend to Static Web Apps
+
+# Compila Angular en el runner de GitHub y lo despliega a Azure Static Web Apps.
+# Corre en Linux (el StaticSitesClient local en Windows fallaba).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'FrontDerechosPeru/**'
+      - '.github/workflows/frontend-swa.yml'
+  workflow_dispatch: {}
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: FrontDerechosPeru/package-lock.json
+
+      - name: Build Angular (producción)
+        run: |
+          npm ci
+          npm run build
+        working-directory: FrontDerechosPeru
+
+      # El build con SSR genera index.csr.html; Static Web Apps necesita index.html
+      - name: Garantizar index.html
+        run: cp FrontDerechosPeru/dist/FrontDerechosPeru/browser/index.csr.html FrontDerechosPeru/dist/FrontDerechosPeru/browser/index.html
+
+      - name: Deploy a Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.SWA_DEPLOY_TOKEN }}
+          action: upload
+          app_location: FrontDerechosPeru/dist/FrontDerechosPeru/browser
+          skip_app_build: true
+          skip_api_build: true
