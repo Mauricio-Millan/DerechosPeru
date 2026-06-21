@@ -6,6 +6,10 @@ ENV HF_HUB_DISABLE_SYMLINKS_WARNING=1 \
     PYTHONUNBUFFERED=1
 
 COPY requirements.txt .
+# Torch CPU-only PRIMERO: evita arrastrar ~2.5 GB de librerías CUDA (GPU) que no
+# usamos. Así sentence-transformers ya encuentra torch satisfecho y no baja la
+# variante CUDA. Reduce la imagen de ~5.8 GB a ~1.5 GB (cold start mucho más rápido).
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Pre-descargar el modelo de embeddings DENTRO de la imagen, para que el
