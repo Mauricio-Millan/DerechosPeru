@@ -1,7 +1,10 @@
 """Configuración central de la aplicación (cargada desde variables de entorno)."""
+import json
 from functools import lru_cache
+from typing import Annotated
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -20,7 +23,19 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
     # --- CORS (frontend Angular) ---
-    CORS_ORIGINS: list[str] = ["http://localhost:4200"]
+    # NoDecode: evita que pydantic intente json.loads automático del env var.
+    # Acepta lista separada por comas ("https://a,https://b") o JSON.
+    CORS_ORIGINS: Annotated[list[str], NoDecode] = ["http://localhost:4200"]
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def _parse_cors(cls, v):
+        if isinstance(v, str):
+            s = v.strip()
+            if s.startswith("["):
+                return json.loads(s)
+            return [o.strip() for o in s.split(",") if o.strip()]
+        return v
 
     # --- Embeddings ---
     # Proveedor: "local" (gratis, offline) | "openai" (Azure OpenAI) | "fake"
