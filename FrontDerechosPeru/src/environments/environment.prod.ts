@@ -3,5 +3,5 @@
 // (p. ej. https://back-derechos.xxxx.azurecontainerapps.io), y reconstruye el front.
 export const environment = {
   production: true,
-  apiUrl: 'https://back-derechos.braveocean-030c7a83.eastus2.azurecontainerapps.io/api',
+  apiUrl: 'https://backderechosperu.mmillan.tech/api',
 };
