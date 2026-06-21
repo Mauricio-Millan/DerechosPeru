@@ -225,10 +225,11 @@
   gap: v.$spacing-md;
   transition: all v.$transition-fast;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+  cursor: pointer;
 
   &:hover {
     border-color: v.$color-primary;
-    box-shadow: 0 4px 12px rgba(v.$color-primary, 0.04);
+    box-shadow: 0 4px 12px rgba(v.$color-primary, 0.08);
     transform: translateY(-2px);
   }
 
@@ -256,16 +257,12 @@
     font-size: v.$font-size-lg;
     font-weight: 600;
     line-height: 1.4;
+    color: v.$color-text-primary;
+    transition: color v.$transition-fast;
+  }
 
-    a {
-      color: v.$color-text-primary;
-      text-decoration: none;
-      transition: color v.$transition-fast;
-
-      &:hover {
-        color: v.$color-primary;
-      }
-    }
+  &:hover &__title {
+    color: v.$color-primary;
   }
 
   &__badge {
@@ -335,4 +332,22 @@
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+@media (max-width: 768px) {
+  .foro-container {
+    padding: v.$spacing-md;
+  }
+
+  .foro-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: v.$spacing-sm;
+
+    &__title { font-size: v.$font-size-xl; }
+  }
+
+  .thread-card {
+    padding: v.$spacing-md;
+  }
 }

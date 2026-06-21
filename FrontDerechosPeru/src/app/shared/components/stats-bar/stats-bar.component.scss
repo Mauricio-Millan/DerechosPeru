@@ -69,4 +69,34 @@
       }
     }
   }
+
+  @media (max-width: 768px) {
+    height: auto;
+    flex-direction: column;
+    padding: v.$spacing-xs v.$spacing-md;
+    gap: 0;
+
+    &__counters {
+      display: none;
+    }
+
+    &__tabs {
+      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: v.$spacing-xs 0;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    &__tab {
+      flex: 1;
+      justify-content: center;
+      white-space: nowrap;
+      padding: 8px v.$spacing-sm;
+      font-size: v.$font-size-xs;
+    }
+  }
 }

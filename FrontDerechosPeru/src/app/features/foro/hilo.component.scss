@@ -1,5 +1,94 @@
 @use '../../../styles/variables' as v;
 
+// ── Botones (encapsulados, no se heredan de foro.component.scss) ──────────────
+.foro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px v.$spacing-md;
+  border-radius: v.$radius-md;
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  text-decoration: none;
+  border: 1px solid transparent;
+  font-family: v.$font-family-ui;
+
+  &--primary {
+    background: v.$color-primary;
+    color: white;
+    &:hover:not(:disabled) { background: v.$color-primary-dark; }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: v.$color-text-secondary;
+    border-color: v.$color-border;
+    &:hover { background: v.$color-bg-subtle; color: v.$color-text-primary; }
+  }
+}
+
+// ── Formulario (encapsulado) ──────────────────────────────────────────────────
+.foro-form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-xs;
+
+    span {
+      font-size: v.$font-size-xs;
+      font-weight: 600;
+      color: v.$color-text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    textarea {
+      width: 100%;
+      padding: v.$spacing-md;
+      border: 1.5px solid v.$color-border;
+      border-radius: v.$radius-md;
+      font-size: v.$font-size-base;
+      font-family: v.$font-family-ui;
+      color: v.$color-text-primary;
+      background: white;
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.6;
+      transition: border-color v.$transition-fast, box-shadow v.$transition-fast;
+      outline: none;
+
+      &:focus {
+        border-color: v.$color-primary;
+        box-shadow: 0 0 0 3px v.$color-primary-bg;
+      }
+
+      &::placeholder {
+        color: v.$color-text-muted;
+      }
+    }
+  }
+
+  &__error {
+    margin: 0;
+    font-size: v.$font-size-sm;
+    color: #b3261e;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: v.$spacing-sm;
+  }
+}
+
+// ── Layout principal ──────────────────────────────────────────────────────────
 .hilo-container {
   padding: v.$spacing-xl;
   max-width: 960px;
@@ -10,18 +99,19 @@
   margin-bottom: v.$spacing-md;
 }
 
+// ── Hilo principal ────────────────────────────────────────────────────────────
 .hilo-card {
-  background: v.$color-bg;
+  background: white;
   border: 1px solid v.$color-border;
   border-radius: v.$radius-lg;
   padding: v.$spacing-xl;
   margin-bottom: v.$spacing-xl;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  box-shadow: v.$shadow-card;
 
   &__header {
     margin-bottom: v.$spacing-md;
-    border-bottom: 1px solid v.$color-bg-subtle;
     padding-bottom: v.$spacing-md;
+    border-bottom: 1px solid v.$color-border-light;
   }
 
   &__meta {
@@ -31,7 +121,7 @@
     gap: v.$spacing-xs;
     font-size: v.$font-size-xs;
     color: v.$color-text-muted;
-    margin-bottom: v.$spacing-xs;
+    margin-bottom: v.$spacing-sm;
   }
 
   &__author {
@@ -39,69 +129,70 @@
     color: v.$color-text-secondary;
   }
 
-  &__date {
-    color: v.$color-text-muted;
-  }
+  &__date { color: v.$color-text-muted; }
 
   &__badge-art {
-    padding: 2px 6px;
-    border-radius: v.$radius-sm;
-    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: v.$radius-pill;
+    font-size: 11px;
     font-weight: 700;
-    text-transform: uppercase;
     background: v.$color-primary-bg;
     color: v.$color-primary;
+    border: 1px solid rgba(139, 32, 32, 0.15);
   }
 
   &__title {
-    margin: v.$spacing-sm 0 0;
-    font-size: 1.6rem;
+    margin: 0;
+    font-family: v.$font-family-base;
+    font-size: v.$font-size-2xl;
     font-weight: 700;
-    color: v.$color-primary;
+    color: v.$color-text-primary;
     line-height: 1.3;
   }
 
   &__body {
     font-size: v.$font-size-base;
-    color: v.$color-text-primary;
-    line-height: 1.6;
-    margin-bottom: v.$spacing-lg;
+    color: v.$color-text-secondary;
+    line-height: 1.75;
     white-space: pre-wrap;
+    margin-bottom: v.$spacing-lg;
   }
 
   &__footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid v.$color-bg-subtle;
+    border-top: 1px solid v.$color-border-light;
     padding-top: v.$spacing-md;
+    gap: v.$spacing-sm;
+    flex-wrap: wrap;
+  }
+
+  &__status-wrap {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-xs;
   }
 
   &__actions {
     display: flex;
     gap: v.$spacing-sm;
-
-    .text-warning {
-      color: #b58900;
-      &:hover { background: rgba(181, 137, 0, 0.08); }
-    }
-    .text-danger {
-      color: #b3261e;
-      &:hover { background: rgba(179, 38, 30, 0.08); }
-    }
+    flex-wrap: wrap;
   }
 }
 
+// ── Respuestas ────────────────────────────────────────────────────────────────
 .respuestas-section {
   margin-bottom: v.$spacing-xl;
 
   &__title {
-    font-size: v.$font-size-lg;
+    font-size: v.$font-size-base;
     font-weight: 700;
-    color: v.$color-text-primary;
-    margin-bottom: v.$spacing-lg;
-    border-bottom: 2px solid v.$color-border;
-    padding-bottom: v.$spacing-xs;
+    color: v.$color-text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: v.$spacing-md;
+    font-family: v.$font-family-ui;
   }
 }
 
@@ -112,40 +203,45 @@
 }
 
 .post-card {
-  background: v.$color-bg;
+  background: white;
   border: 1px solid v.$color-border;
   border-radius: v.$radius-lg;
-  padding: v.$spacing-md;
+  padding: v.$spacing-lg;
   display: flex;
   gap: v.$spacing-md;
-  transition: all v.$transition-fast;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+  transition: box-shadow v.$transition-fast;
+  box-shadow: v.$shadow-card;
+
+  &:hover {
+    box-shadow: v.$shadow-card-hover;
+  }
 
   &--verified {
-    border-left: 4px solid #1b6b3a;
-    background: rgba(27, 107, 58, 0.01);
+    border-left: 4px solid #27AE60;
+    background: #FAFFF8;
   }
 
   &--best {
-    border-left: 4px solid #d4af37;
-    background: rgba(212, 175, 55, 0.02);
+    border-left: 4px solid v.$color-gold;
+    background: #FFFDF5;
   }
 
   &__votes {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 4px;
-    min-width: 40px;
+    gap: 6px;
+    min-width: 44px;
     user-select: none;
+    flex-shrink: 0;
   }
 
   &__content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: v.$spacing-sm;
+    min-width: 0;
   }
 
   &__header {
@@ -154,10 +250,12 @@
     align-items: flex-start;
     flex-wrap: wrap;
     gap: v.$spacing-xs;
-    margin-bottom: v.$spacing-xs;
   }
 
   &__meta {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-xs;
     font-size: v.$font-size-xs;
     color: v.$color-text-muted;
   }
@@ -165,77 +263,89 @@
   &__author {
     font-weight: 600;
     color: v.$color-text-secondary;
-    margin-right: v.$spacing-xs;
   }
 
   &__badges {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
+    gap: v.$spacing-xs;
+    flex-wrap: wrap;
   }
 
   &__badge {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    padding: 2px 6px;
-    border-radius: v.$radius-sm;
-    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: v.$radius-pill;
 
     &--best {
-      background: rgba(212, 175, 55, 0.12);
-      color: #b89000;
-      border: 1px solid rgba(212, 175, 55, 0.3);
+      background: rgba(201, 168, 76, 0.15);
+      color: #8B6914;
+      border: 1px solid rgba(201, 168, 76, 0.4);
     }
 
     &--verified {
-      background: rgba(27, 107, 58, 0.08);
-      color: #1b6b3a;
-      border: 1px solid rgba(27, 107, 58, 0.2);
+      background: rgba(39, 174, 96, 0.1);
+      color: #1a7a40;
+      border: 1px solid rgba(39, 174, 96, 0.3);
     }
   }
 
   &__body {
-    font-size: v.$font-size-sm;
+    font-size: v.$font-size-base;
     color: v.$color-text-primary;
-    line-height: 1.5;
-    margin: v.$spacing-xs 0 v.$spacing-sm;
+    line-height: 1.65;
     white-space: pre-wrap;
   }
 
   &__footer {
     display: flex;
     justify-content: flex-end;
-    align-items: center;
+    padding-top: v.$spacing-xs;
+    border-top: 1px solid v.$color-border-light;
   }
 
   &__actions {
     display: flex;
     gap: v.$spacing-md;
+    align-items: center;
   }
 }
 
+// ── Botones de voto ───────────────────────────────────────────────────────────
 .vote-btn {
-  background: transparent;
-  border: none;
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: v.$radius-sm;
+  border: 1.5px solid v.$color-border;
+  background: v.$color-bg-subtle;
   color: v.$color-text-muted;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: v.$radius-sm;
+  font-size: 13px;
   transition: all v.$transition-fast;
 
   &:hover {
-    background: v.$color-bg-subtle;
+    border-color: v.$color-text-secondary;
     color: v.$color-text-primary;
+    background: white;
   }
 
-  &--up:hover, &--up.vote-btn--active {
-    color: #1b6b3a;
+  &--up {
+    &.vote-btn--active, &:hover {
+      border-color: #27AE60;
+      background: #EAF6EC;
+      color: #1a7a40;
+    }
   }
 
-  &--down:hover, &--down.vote-btn--active {
-    color: #b3261e;
+  &--down {
+    &.vote-btn--active, &:hover {
+      border-color: #C0392B;
+      background: #FDECEA;
+      color: #922B21;
+    }
   }
 }
 
@@ -243,44 +353,41 @@
   font-size: v.$font-size-sm;
   font-weight: 700;
   color: v.$color-text-secondary;
+  min-width: 20px;
+  text-align: center;
 
-  &--positive {
-    color: #1b6b3a;
-  }
-  &--negative {
-    color: #b3261e;
-  }
+  &--positive { color: #1a7a40; }
+  &--negative { color: #922B21; }
 }
 
+// ── Acciones inline ───────────────────────────────────────────────────────────
 .action-link {
   background: transparent;
   border: none;
   font-size: v.$font-size-xs;
   font-weight: 600;
-  color: v.$color-primary;
+  color: v.$color-text-muted;
   cursor: pointer;
-  padding: 0;
-  transition: color v.$transition-fast;
+  padding: 3px 6px;
+  border-radius: v.$radius-sm;
+  transition: all v.$transition-fast;
 
   &:hover {
-    color: v.$color-primary-dark;
-    text-decoration: underline;
+    color: v.$color-primary;
+    background: v.$color-primary-bg;
   }
 
   &.text-danger {
-    color: v.$color-text-muted;
-    &:hover {
-      color: #b3261e;
-    }
+    &:hover { color: #922B21; background: #FDECEA; }
   }
 }
 
+// ── Sección de respuesta ──────────────────────────────────────────────────────
 .hilo-reply-section {
-  background: v.$color-bg;
+  background: v.$color-bg-subtle;
   border: 1px solid v.$color-border;
   border-radius: v.$radius-lg;
-  padding: v.$spacing-lg;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  padding: v.$spacing-xl;
 
   &__title {
     margin: 0 0 v.$spacing-md;
@@ -294,7 +401,7 @@
   background: v.$color-bg-subtle;
   border: 1px solid v.$color-border;
   color: v.$color-text-muted;
-  padding: v.$spacing-md;
+  padding: v.$spacing-md v.$spacing-lg;
   border-radius: v.$radius-md;
   text-align: center;
   font-weight: 500;
@@ -305,14 +412,105 @@
   color: v.$color-text-secondary;
   font-size: v.$font-size-sm;
   text-align: center;
-  padding: v.$spacing-sm;
+  padding: v.$spacing-md;
+  background: white;
+  border: 1px dashed v.$color-border;
+  border-radius: v.$radius-md;
 
   &__link {
     color: v.$color-primary;
     font-weight: 600;
     text-decoration: none;
-    &:hover {
-      text-decoration: underline;
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ── Estados de hilo ───────────────────────────────────────────────────────────
+.thread-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: v.$radius-pill;
+  font-weight: 600;
+  font-size: 11px;
+
+  &--closed {
+    background: v.$color-bg-subtle;
+    color: v.$color-text-muted;
+    border: 1px solid v.$color-border;
+  }
+}
+
+.foro-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-md;
+  padding: v.$spacing-xl * 2;
+  text-align: center;
+  background: white;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  color: v.$color-text-muted;
+
+  &__title {
+    margin: 0;
+    font-size: v.$font-size-lg;
+    font-weight: 600;
+    color: v.$color-text-primary;
+  }
+
+  &__desc {
+    margin: 0;
+    font-size: v.$font-size-sm;
+    max-width: 320px;
+    line-height: 1.5;
+  }
+}
+
+.foro-loading {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+}
+
+.foro-skeleton {
+  border-radius: v.$radius-lg;
+  background: linear-gradient(90deg, v.$color-border 25%, v.$color-bg-subtle 50%, v.$color-border 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .hilo-container {
+    padding: v.$spacing-md;
+  }
+
+  .hilo-card {
+    padding: v.$spacing-md;
+
+    &__title { font-size: v.$font-size-xl; }
+  }
+
+  .post-card {
+    flex-direction: column;
+    gap: v.$spacing-sm;
+
+    &__votes {
+      flex-direction: row;
+      min-width: unset;
+      gap: v.$spacing-sm;
     }
+  }
+
+  .hilo-reply-section {
+    padding: v.$spacing-md;
   }
 }

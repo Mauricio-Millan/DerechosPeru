@@ -109,12 +109,32 @@
     cursor: pointer;
     text-decoration: none;
     white-space: nowrap;
+    transition: all v.$transition-fast;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
 
     &--primary {
       background: v.$color-gold;
       border-color: v.$color-gold;
       color: v.$color-primary;
       font-weight: 600;
+
+      &:hover {
+        background: #b8922a;
+      }
+    }
+
+    &--admin {
+      background: rgba(201, 168, 76, 0.15);
+      border-color: v.$color-gold;
+      color: v.$color-gold;
+      font-weight: 600;
+
+      &:hover {
+        background: rgba(201, 168, 76, 0.28);
+      }
     }
   }
 
@@ -122,5 +142,40 @@
     height: 2px;
     background: linear-gradient(90deg, v.$color-gold 0%, rgba(v.$color-gold, 0.3) 60%, transparent 100%);
     margin: 0 v.$spacing-xl;
+  }
+
+  @media (max-width: 768px) {
+    &__content {
+      padding: v.$spacing-sm v.$spacing-md;
+      gap: v.$spacing-sm;
+    }
+
+    &__badge {
+      display: none;
+    }
+
+    &__subtitle {
+      display: none;
+    }
+
+    &__title {
+      font-size: v.$font-size-xl;
+    }
+
+    &__supertitle {
+      display: none;
+    }
+
+    &__auth-user {
+      display: none;
+    }
+
+    &__right {
+      gap: v.$spacing-sm;
+    }
+
+    &__line {
+      margin: 0 v.$spacing-md;
+    }
   }
 }

@@ -30,7 +30,7 @@
       <div class="header__auth">
         @if (auth.isLoggedIn()) {
           @if (auth.isAdmin()) {
-            <a routerLink="/admin/usuarios" class="header__auth-link">Usuarios</a>
+            <a routerLink="/admin" class="header__auth-btn header__auth-btn--admin">Panel Admin</a>
           }
           <span class="header__auth-user" [title]="auth.user()?.email">
             {{ auth.user()?.email }}
