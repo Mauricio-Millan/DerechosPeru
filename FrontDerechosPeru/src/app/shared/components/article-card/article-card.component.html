@@ -59,6 +59,53 @@
         <span class="card__meta-sep">·</span>
         <span>Constitución Política del Perú, 1993</span>
       </div>
+
+      <!-- Sección de anotaciones de expertos -->
+      <div class="card__annotations-wrapper">
+        <h4 class="card__annotations-title">Anotaciones de Expertos</h4>
+        
+        @if (cargandoAnotaciones()) {
+          <p class="card__annotations-loading">Cargando anotaciones...</p>
+        } @else if (anotaciones().length === 0) {
+          <p class="card__annotations-empty">No hay anotaciones de expertos para este artículo.</p>
+        } @else {
+          <div class="card__annotations-list">
+            @for (annot of anotaciones(); track annot.id) {
+              <div class="card__annotation-item">
+                <div class="card__annotation-header">
+                  <span class="card__annotation-author">{{ annot.author_name || 'Experto verificado' }}</span>
+                  <span class="card__annotation-date">{{ annot.created_at | date:'shortDate' }}</span>
+                  @if (auth.isLoggedIn() && auth.user()?.id === annot.author_id) {
+                    <button class="card__annotation-delete" (click)="borrarAnotacion(annot.id)" type="button">Eliminar</button>
+                  }
+                </div>
+                <p class="card__annotation-text">{{ annot.contenido }}</p>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Formulario para agregar anotación si es experto/admin -->
+        @if (auth.isLoggedIn() && auth.canVerify()) {
+          <form (ngSubmit)="crearAnotacion()" class="card__annotation-form">
+            <textarea 
+              [(ngModel)]="nuevaAnotacion" 
+              name="anotacion" 
+              placeholder="Escribe una anotación o comentario doctrinal/jurisprudencial sobre este artículo..."
+              rows="3"
+              required
+            ></textarea>
+            @if (errorAnotacion()) {
+              <p class="card__annotation-error">{{ errorAnotacion() }}</p>
+            }
+            <div class="card__annotation-form-actions">
+              <button type="submit" class="card__btn-annot-submit" [disabled]="enviandoAnotacion() || !nuevaAnotacion.trim()">
+                {{ enviandoAnotacion() ? 'Guardando...' : 'Agregar anotación' }}
+              </button>
+            </div>
+          </form>
+        }
+      </div>
     </div>
   }
 </div>

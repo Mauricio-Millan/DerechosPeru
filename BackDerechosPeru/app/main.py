@@ -2,7 +2,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import admin, articulos, bookmarks, consulta, cuenta, estructura
+from app.api.routes import (
+    admin,
+    annotations,
+    articulos,
+    bookmarks,
+    consulta,
+    cuenta,
+    estructura,
+    forum,
+)
 from app.core.config import settings
 
 app = FastAPI(
@@ -25,6 +34,8 @@ app.include_router(consulta.router, prefix=settings.API_PREFIX)
 app.include_router(bookmarks.router, prefix=settings.API_PREFIX)
 app.include_router(admin.router, prefix=settings.API_PREFIX)
 app.include_router(cuenta.router, prefix=settings.API_PREFIX)
+app.include_router(forum.router, prefix=settings.API_PREFIX)
+app.include_router(annotations.router, prefix=settings.API_PREFIX)
 
 
 @app.get("/health", tags=["health"])

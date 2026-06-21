@@ -1,0 +1,318 @@
+@use '../../../styles/variables' as v;
+
+.hilo-container {
+  padding: v.$spacing-xl;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.hilo-back {
+  margin-bottom: v.$spacing-md;
+}
+
+.hilo-card {
+  background: v.$color-bg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-xl;
+  margin-bottom: v.$spacing-xl;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+
+  &__header {
+    margin-bottom: v.$spacing-md;
+    border-bottom: 1px solid v.$color-bg-subtle;
+    padding-bottom: v.$spacing-md;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: v.$spacing-xs;
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+    margin-bottom: v.$spacing-xs;
+  }
+
+  &__author {
+    font-weight: 600;
+    color: v.$color-text-secondary;
+  }
+
+  &__date {
+    color: v.$color-text-muted;
+  }
+
+  &__badge-art {
+    padding: 2px 6px;
+    border-radius: v.$radius-sm;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: v.$color-primary-bg;
+    color: v.$color-primary;
+  }
+
+  &__title {
+    margin: v.$spacing-sm 0 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: v.$color-primary;
+    line-height: 1.3;
+  }
+
+  &__body {
+    font-size: v.$font-size-base;
+    color: v.$color-text-primary;
+    line-height: 1.6;
+    margin-bottom: v.$spacing-lg;
+    white-space: pre-wrap;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid v.$color-bg-subtle;
+    padding-top: v.$spacing-md;
+  }
+
+  &__actions {
+    display: flex;
+    gap: v.$spacing-sm;
+
+    .text-warning {
+      color: #b58900;
+      &:hover { background: rgba(181, 137, 0, 0.08); }
+    }
+    .text-danger {
+      color: #b3261e;
+      &:hover { background: rgba(179, 38, 30, 0.08); }
+    }
+  }
+}
+
+.respuestas-section {
+  margin-bottom: v.$spacing-xl;
+
+  &__title {
+    font-size: v.$font-size-lg;
+    font-weight: 700;
+    color: v.$color-text-primary;
+    margin-bottom: v.$spacing-lg;
+    border-bottom: 2px solid v.$color-border;
+    padding-bottom: v.$spacing-xs;
+  }
+}
+
+.respuestas-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+}
+
+.post-card {
+  background: v.$color-bg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-md;
+  display: flex;
+  gap: v.$spacing-md;
+  transition: all v.$transition-fast;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+
+  &--verified {
+    border-left: 4px solid #1b6b3a;
+    background: rgba(27, 107, 58, 0.01);
+  }
+
+  &--best {
+    border-left: 4px solid #d4af37;
+    background: rgba(212, 175, 55, 0.02);
+  }
+
+  &__votes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 40px;
+    user-select: none;
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: v.$spacing-xs;
+    margin-bottom: v.$spacing-xs;
+  }
+
+  &__meta {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+  }
+
+  &__author {
+    font-weight: 600;
+    color: v.$color-text-secondary;
+    margin-right: v.$spacing-xs;
+  }
+
+  &__badges {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  &__badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: v.$radius-sm;
+    text-transform: uppercase;
+
+    &--best {
+      background: rgba(212, 175, 55, 0.12);
+      color: #b89000;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    &--verified {
+      background: rgba(27, 107, 58, 0.08);
+      color: #1b6b3a;
+      border: 1px solid rgba(27, 107, 58, 0.2);
+    }
+  }
+
+  &__body {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-primary;
+    line-height: 1.5;
+    margin: v.$spacing-xs 0 v.$spacing-sm;
+    white-space: pre-wrap;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  &__actions {
+    display: flex;
+    gap: v.$spacing-md;
+  }
+}
+
+.vote-btn {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  color: v.$color-text-muted;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: v.$radius-sm;
+  transition: all v.$transition-fast;
+
+  &:hover {
+    background: v.$color-bg-subtle;
+    color: v.$color-text-primary;
+  }
+
+  &--up:hover, &--up.vote-btn--active {
+    color: #1b6b3a;
+  }
+
+  &--down:hover, &--down.vote-btn--active {
+    color: #b3261e;
+  }
+}
+
+.vote-count {
+  font-size: v.$font-size-sm;
+  font-weight: 700;
+  color: v.$color-text-secondary;
+
+  &--positive {
+    color: #1b6b3a;
+  }
+  &--negative {
+    color: #b3261e;
+  }
+}
+
+.action-link {
+  background: transparent;
+  border: none;
+  font-size: v.$font-size-xs;
+  font-weight: 600;
+  color: v.$color-primary;
+  cursor: pointer;
+  padding: 0;
+  transition: color v.$transition-fast;
+
+  &:hover {
+    color: v.$color-primary-dark;
+    text-decoration: underline;
+  }
+
+  &.text-danger {
+    color: v.$color-text-muted;
+    &:hover {
+      color: #b3261e;
+    }
+  }
+}
+
+.hilo-reply-section {
+  background: v.$color-bg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-lg;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+
+  &__title {
+    margin: 0 0 v.$spacing-md;
+    font-size: v.$font-size-base;
+    font-weight: 600;
+    color: v.$color-text-primary;
+  }
+}
+
+.hilo-closed-banner {
+  background: v.$color-bg-subtle;
+  border: 1px solid v.$color-border;
+  color: v.$color-text-muted;
+  padding: v.$spacing-md;
+  border-radius: v.$radius-md;
+  text-align: center;
+  font-weight: 500;
+  font-size: v.$font-size-sm;
+}
+
+.hilo-login-banner {
+  color: v.$color-text-secondary;
+  font-size: v.$font-size-sm;
+  text-align: center;
+  padding: v.$spacing-sm;
+
+  &__link {
+    color: v.$color-primary;
+    font-weight: 600;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

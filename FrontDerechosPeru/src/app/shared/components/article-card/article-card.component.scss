@@ -151,4 +151,135 @@
   &__meta-sep {
     opacity: 0.4;
   }
+
+  &__annotations-wrapper {
+    margin-top: v.$spacing-lg;
+    padding-top: v.$spacing-md;
+    border-top: 1px solid v.$color-border;
+  }
+
+  &__annotations-title {
+    font-size: v.$font-size-sm;
+    font-weight: 700;
+    color: v.$color-primary;
+    margin: 0 0 v.$spacing-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__annotations-loading,
+  &__annotations-empty {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+    margin: 0 0 v.$spacing-sm;
+  }
+
+  &__annotations-list {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-sm;
+    margin-bottom: v.$spacing-md;
+  }
+
+  &__annotation-item {
+    background: v.$color-bg-subtle;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-sm;
+    padding: v.$spacing-sm;
+    border-left: 3px solid v.$color-primary;
+  }
+
+  &__annotation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: v.$color-text-muted;
+    margin-bottom: 4px;
+  }
+
+  &__annotation-author {
+    font-weight: 600;
+    color: v.$color-text-secondary;
+  }
+
+  &__annotation-delete {
+    background: transparent;
+    border: none;
+    color: v.$color-text-muted;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 0;
+
+    &:hover {
+      color: #b3261e;
+      text-decoration: underline;
+    }
+  }
+
+  &__annotation-text {
+    margin: 0;
+    font-size: v.$font-size-xs;
+    color: v.$color-text-primary;
+    line-height: 1.5;
+  }
+
+  &__annotation-form {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-xs;
+    margin-top: v.$spacing-md;
+
+    textarea {
+      width: 100%;
+      padding: v.$spacing-xs v.$spacing-sm;
+      border: 1px solid v.$color-border;
+      border-radius: v.$radius-sm;
+      font-size: v.$font-size-xs;
+      color: v.$color-text-primary;
+      background: v.$color-bg-subtle;
+      outline: none;
+      resize: vertical;
+      transition: all v.$transition-fast;
+
+      &:focus {
+        border-color: v.$color-primary;
+        box-shadow: 0 0 0 3px v.$color-primary-bg;
+        background: v.$color-bg;
+      }
+    }
+  }
+
+  &__annotation-error {
+    margin: 0;
+    font-size: v.$font-size-xs;
+    color: #b3261e;
+  }
+
+  &__annotation-form-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__btn-annot-submit {
+    padding: 6px v.$spacing-sm;
+    background: v.$color-primary;
+    color: v.$color-text-on-primary;
+    border: none;
+    border-radius: v.$radius-sm;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background v.$transition-fast;
+
+    &:hover:not(:disabled) {
+      background: v.$color-primary-dark;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
 }

@@ -7,6 +7,7 @@ from app.models.constitution import (
     ConsultaLog,
     Titulo,
 )
+from app.models.forum import ExpertAnnotation, ForumPost, ForumThread, PostVote
 
 __all__ = [
     "ConstitutionVersion",
@@ -18,4 +19,8 @@ __all__ = [
     "Profile",
     "Bookmark",
     "ROLES",
+    "ForumThread",
+    "ForumPost",
+    "PostVote",
+    "ExpertAnnotation",
 ]

@@ -196,13 +196,17 @@ Angular (Consulta guiada)
 | T3.8 | Configurar `SUPABASE_JWT_SECRET` en `.env` y en el Container App | Config/DevOps | ⬜ |
 
 ### Sprint 3 — M5 · Foro & Conocimiento Experto
+> Detalle ejecutable: [SPRINT3_FORO.md](SPRINT3_FORO.md) (doc de delegación).
+> Alcance: M5 **sin moderación de terceros** (RF-14 → Sprint 5). Actualización por **polling ligero** (no SSE/Realtime).
 | ID | Tarea | Func. backend | Estado |
 |---|---|---|---|
-| T5.1 | Tablas `forum_thread`, `forum_post`, `post_vote`, `expert_annotation` | SQL | ⬜ |
-| T5.2 | CRUD de hilos y respuestas (`/api/forum/...`) | `routes/forum.py` | ⬜ |
-| T5.3 | Respuesta verificada + votación + "mejor respuesta" | `services/forum_service.py` | ⬜ |
-| T5.4 | Anotaciones de expertos por artículo | `routes/annotations.py` | ⬜ |
-| T5.5 | Front: vista foro, hilo, editor de respuesta | Angular | ⬜ |
+| T5.1 | Tablas `forum_thread`, `forum_post`, `post_vote`, `expert_annotation` | `sql/05_foro.sql` | ⬜ |
+| T5.2 | CRUD de hilos y respuestas (`/api/foro/...`) | `routes/forum.py` | ⬜ |
+| T5.3 | Respuesta verificada (`require_role` experto+) + votación útil/no-útil + "mejor respuesta" | `routes/forum.py` | ⬜ |
+| T5.4 | Anotaciones de expertos por artículo (`/api/articulos/{id}/anotaciones`) | `routes/annotations.py` | ⬜ |
+| T5.5 | Front: vista foro (lista), hilo (detalle + polling), editor de respuesta | `features/foro` | ⬜ |
+| T5.6 | Front: anotaciones de expertos en la tarjeta de artículo | `shared/article-card` | ⬜ |
+| T5.7 | Test `test_foro.py` (toggle de voto + guard de `verificar`) | `tests/` | ⬜ |
 
 ### Sprint 4 — M4 · Control de Versiones
 | ID | Tarea | Func. backend | Estado |

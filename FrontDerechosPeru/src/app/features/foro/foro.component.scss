@@ -1,0 +1,338 @@
+@use '../../../styles/variables' as v;
+
+.foro-container {
+  padding: v.$spacing-xl;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.foro-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: v.$spacing-md;
+  margin-bottom: v.$spacing-xl;
+  border-bottom: 1px solid v.$color-border;
+  padding-bottom: v.$spacing-lg;
+
+  &__title {
+    margin: 0 0 v.$spacing-xs;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: v.$color-primary;
+  }
+
+  &__subtitle {
+    margin: 0;
+    color: v.$color-text-secondary;
+    font-size: v.$font-size-sm;
+    max-width: 600px;
+    line-height: 1.5;
+  }
+}
+
+.foro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px v.$spacing-md;
+  border-radius: v.$radius-md;
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  text-decoration: none;
+  border: 1px solid transparent;
+
+  &--primary {
+    background: v.$color-primary;
+    color: v.$color-text-on-primary;
+
+    &:hover:not(:disabled) {
+      background: v.$color-primary-dark;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &--secondary {
+    background: v.$color-bg-subtle;
+    border-color: v.$color-border;
+    color: v.$color-text-secondary;
+
+    &:hover {
+      background: v.$color-border;
+      color: v.$color-text-primary;
+    }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: v.$color-text-secondary;
+
+    &:hover {
+      background: v.$color-bg-subtle;
+      color: v.$color-text-primary;
+    }
+  }
+}
+
+.foro-form-card {
+  background: v.$color-bg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-lg;
+  margin-bottom: v.$spacing-xl;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+
+  &__title {
+    margin: 0 0 v.$spacing-lg;
+    font-size: v.$font-size-lg;
+    font-weight: 600;
+    color: v.$color-text-primary;
+  }
+}
+
+.foro-form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-xs;
+
+    span {
+      font-size: v.$font-size-xs;
+      font-weight: 600;
+      color: v.$color-text-secondary;
+
+      .required {
+        color: v.$color-primary;
+      }
+    }
+
+    input, textarea {
+      padding: 10px v.$spacing-sm;
+      border: 1px solid v.$color-border;
+      border-radius: v.$radius-md;
+      font-size: v.$font-size-base;
+      color: v.$color-text-primary;
+      background: v.$color-bg-subtle;
+      transition: all v.$transition-fast;
+      outline: none;
+
+      &:focus {
+        border-color: v.$color-primary;
+        box-shadow: 0 0 0 3px v.$color-primary-bg;
+        background: v.$color-bg;
+      }
+    }
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: v.$spacing-md;
+
+    @media (min-width: 600px) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  &__error {
+    margin: 0;
+    font-size: v.$font-size-sm;
+    color: #b3261e;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: v.$spacing-sm;
+    margin-top: v.$spacing-xs;
+  }
+}
+
+.foro-main {
+  margin-top: v.$spacing-md;
+}
+
+.foro-loading {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+}
+
+.foro-skeleton {
+  height: 120px;
+  border-radius: v.$radius-lg;
+  background: linear-gradient(90deg, v.$color-border 25%, v.$color-bg-subtle 50%, v.$color-border 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.foro-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-md;
+  padding: v.$spacing-xl * 2;
+  text-align: center;
+  background: v.$color-bg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  color: v.$color-text-muted;
+
+  svg {
+    opacity: 0.4;
+    color: v.$color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: v.$font-size-lg;
+    font-weight: 600;
+    color: v.$color-text-primary;
+  }
+
+  &__desc {
+    margin: 0;
+    font-size: v.$font-size-sm;
+    max-width: 320px;
+    line-height: 1.5;
+  }
+}
+
+.foro-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+}
+
+.thread-card {
+  background: v.$color-bg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-lg;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: v.$spacing-md;
+  transition: all v.$transition-fast;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+
+  &:hover {
+    border-color: v.$color-primary;
+    box-shadow: 0 4px 12px rgba(v.$color-primary, 0.04);
+    transform: translateY(-2px);
+  }
+
+  &__header {
+    margin-bottom: v.$spacing-xs;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: v.$spacing-xs;
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+    margin-bottom: v.$spacing-xs;
+  }
+
+  &__author {
+    font-weight: 600;
+    color: v.$color-text-secondary;
+  }
+
+  &__title {
+    margin: v.$spacing-xs 0 0;
+    font-size: v.$font-size-lg;
+    font-weight: 600;
+    line-height: 1.4;
+
+    a {
+      color: v.$color-text-primary;
+      text-decoration: none;
+      transition: color v.$transition-fast;
+
+      &:hover {
+        color: v.$color-primary;
+      }
+    }
+  }
+
+  &__badge {
+    padding: 2px 6px;
+    border-radius: v.$radius-sm;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+
+    &--articulo {
+      background: v.$color-primary-bg;
+      color: v.$color-primary;
+    }
+  }
+
+  &__excerpt {
+    margin: 0;
+    color: v.$color-text-secondary;
+    font-size: v.$font-size-sm;
+    line-height: 1.5;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid v.$color-bg-subtle;
+    padding-top: v.$spacing-md;
+    font-size: v.$font-size-xs;
+  }
+
+  &__badges {
+    display: flex;
+    gap: v.$spacing-xs;
+  }
+
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: v.$radius-pill;
+    font-weight: 600;
+    font-size: 11px;
+
+    &--resolved {
+      background: rgba(27, 107, 58, 0.08);
+      color: #1b6b3a;
+    }
+
+    &--closed {
+      background: v.$color-bg-subtle;
+      color: v.$color-text-muted;
+      border: 1px solid v.$color-border;
+    }
+  }
+
+  &__replies {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-xs;
+    color: v.$color-text-muted;
+    font-weight: 500;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

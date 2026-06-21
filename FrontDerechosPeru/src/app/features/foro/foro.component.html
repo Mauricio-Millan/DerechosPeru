@@ -1,0 +1,159 @@
+<div class="foro-container">
+  <header class="foro-header">
+    <div class="foro-header__info">
+      <h1 class="foro-header__title">Foro Constitucional</h1>
+      <p class="foro-header__subtitle">
+        Espacio de discusión ciudadana y captación de conocimiento experto sobre la Constitución Política del Perú.
+      </p>
+    </div>
+    
+    <div class="foro-header__actions">
+      @if (authService.isLoggedIn()) {
+        <button class="foro-btn foro-btn--primary" (click)="toggleFormulario()">
+          {{ mostrandoFormulario() ? 'Cancelar' : 'Nuevo tema' }}
+        </button>
+      } @else {
+        <a routerLink="/auth" class="foro-btn foro-btn--secondary">
+          Inicia sesión para participar
+        </a>
+      }
+    </div>
+  </header>
+
+  <!-- Formulario de nuevo hilo -->
+  @if (mostrandoFormulario() && authService.isLoggedIn()) {
+    <section class="foro-form-card">
+      <h2 class="foro-form-card__title">Crear un nuevo tema de discusión</h2>
+      <form (ngSubmit)="crearHilo()" class="foro-form">
+        <label class="foro-form__field">
+          <span>Título del tema <span class="required">*</span></span>
+          <input 
+            [(ngModel)]="nuevoTitulo" 
+            name="titulo" 
+            type="text" 
+            placeholder="Ej. ¿Qué alcance tiene el derecho a la huelga en el sector público?" 
+            required 
+            minlength="5"
+            maxlength="200"
+          />
+        </label>
+
+        <div class="foro-form__row">
+          <label class="foro-form__field">
+            <span>Artículo Relacionado (opcional)</span>
+            <input 
+              [(ngModel)]="nuevoArticuloId" 
+              name="articuloId" 
+              type="number" 
+              placeholder="Ej. 28" 
+              min="1"
+              max="206"
+            />
+          </label>
+        </div>
+
+        <label class="foro-form__field">
+          <span>Descripción o pregunta <span class="required">*</span></span>
+          <textarea 
+            [(ngModel)]="nuevoContenido" 
+            name="contenido" 
+            rows="6" 
+            placeholder="Describe tu duda, situación o interpretación con detalles..."
+            required
+            minlength="5"
+          ></textarea>
+        </label>
+
+        @if (errorForm()) {
+          <p class="foro-form__error">{{ errorForm() }}</p>
+        }
+
+        <div class="foro-form__actions">
+          <button type="button" class="foro-btn foro-btn--ghost" (click)="toggleFormulario()">
+            Cancelar
+          </button>
+          <button type="submit" class="foro-btn foro-btn--primary" [disabled]="creandoHilo()">
+            {{ creandoHilo() ? 'Creando...' : 'Publicar tema' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <!-- Listado de Hilos -->
+  <main class="foro-main">
+    @if (cargando()) {
+      <div class="foro-loading">
+        <div class="foro-skeleton" *ngFor="let i of [1,2,3,4]"></div>
+      </div>
+    } @else if (threads().length === 0) {
+      <div class="foro-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h3 class="foro-empty__title">No hay temas abiertos todavía</h3>
+        <p class="foro-empty__desc">Sé el primero en iniciar un debate o realizar una consulta sobre la Constitución.</p>
+        @if (authService.isLoggedIn()) {
+          <button class="foro-btn foro-btn--primary" (click)="toggleFormulario()">
+            Iniciar un tema
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="foro-list">
+        @for (thread of threads(); track thread.id) {
+          <article class="thread-card">
+            <div class="thread-card__content">
+              <header class="thread-card__header">
+                <div class="thread-card__meta">
+                  <span class="thread-card__author">{{ thread.author_name || 'Ciudadano anónimo' }}</span>
+                  <span class="thread-card__dot">•</span>
+                  <span class="thread-card__date">{{ thread.created_at | date:'shortDate' }}</span>
+                  
+                  @if (thread.articulo_id) {
+                    <span class="thread-card__badge thread-card__badge--articulo">
+                      Art. N° {{ thread.articulo_id }}
+                    </span>
+                  }
+                </div>
+
+                <h2 class="thread-card__title">
+                  <a [routerLink]="['/constitucion/foro', thread.id]">{{ thread.titulo }}</a>
+                </h2>
+              </header>
+              
+              <p class="thread-card__excerpt">
+                {{ thread.contenido | slice:0:180 }}{{ thread.contenido.length > 180 ? '...' : '' }}
+              </p>
+            </div>
+
+            <footer class="thread-card__footer">
+              <div class="thread-card__badges">
+                @if (thread.best_post_id !== null) {
+                  <span class="thread-card__status thread-card__status--resolved">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Resuelto
+                  </span>
+                }
+                @if (thread.is_closed) {
+                  <span class="thread-card__status thread-card__status--closed">
+                    🔒 Cerrado
+                  </span>
+                }
+              </div>
+
+              <div class="thread-card__replies">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span>{{ thread.total_respuestas }} {{ thread.total_respuestas === 1 ? 'respuesta' : 'respuestas' }}</span>
+              </div>
+            </footer>
+          </article>
+        }
+      </div>
+    }
+  </main>
+</div>

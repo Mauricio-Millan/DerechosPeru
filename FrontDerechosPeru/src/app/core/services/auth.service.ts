@@ -39,6 +39,7 @@ export class AuthService {
   readonly isLoggedIn = computed(() => this._session() != null);
   readonly rol = this._rol.asReadonly();
   readonly isAdmin = computed(() => this._rol() === 'admin');
+  readonly canVerify = computed(() => ['experto', 'editor', 'admin'].includes(this._rol()));
 
   constructor() {
     if (!this.supabase) return;

@@ -42,6 +42,16 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'foro',
+        loadComponent: () =>
+          import('./features/foro/foro.component').then(m => m.ForoComponent),
+      },
+      {
+        path: 'foro/:id',
+        loadComponent: () =>
+          import('./features/foro/hilo.component').then(m => m.HiloComponent),
+      },
+      {
         path: '',
         redirectTo: 'estructura',
         pathMatch: 'full',

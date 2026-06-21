@@ -1,0 +1,194 @@
+<div class="hilo-container">
+  <div class="hilo-back">
+    <a routerLink="/constitucion/foro" class="foro-btn foro-btn--ghost">
+      ← Volver al foro
+    </a>
+  </div>
+
+  @if (cargando()) {
+    <div class="foro-loading">
+      <div class="foro-skeleton" style="height: 200px;"></div>
+      <div class="foro-skeleton" style="height: 100px;"></div>
+    </div>
+  } @else if (!thread()) {
+    <div class="foro-empty">
+      <h3 class="foro-empty__title">Hilo no encontrado</h3>
+      <p class="foro-empty__desc">El tema que estás buscando no existe o fue eliminado.</p>
+      <a routerLink="/constitucion/foro" class="foro-btn foro-btn--primary">
+        Ir al foro
+      </a>
+    </div>
+  } @else {
+    <!-- Contenido del Hilo Principal -->
+    <article class="hilo-card">
+      <header class="hilo-card__header">
+        <div class="hilo-card__meta">
+          <span class="hilo-card__author">{{ thread()?.author_name || 'Ciudadano anónimo' }}</span>
+          <span class="hilo-card__dot">•</span>
+          <span class="hilo-card__date">{{ thread()?.created_at | date:'mediumDate' }}</span>
+
+          @if (thread()?.articulo_id) {
+            <span class="hilo-card__badge-art">
+              Art. N° {{ thread()?.articulo_id }}
+            </span>
+          }
+        </div>
+        
+        <h1 class="hilo-card__title">{{ thread()?.titulo }}</h1>
+      </header>
+
+      <div class="hilo-card__body">
+        <p>{{ thread()?.contenido }}</p>
+      </div>
+
+      <footer class="hilo-card__footer">
+        <div class="hilo-card__status-wrap">
+          @if (thread()?.is_closed) {
+            <span class="thread-card__status thread-card__status--closed">
+              🔒 Hilo cerrado
+            </span>
+          }
+        </div>
+
+        <div class="hilo-card__actions">
+          @if (authService.isLoggedIn() && authService.user()?.id === thread()?.author_id) {
+            <button class="foro-btn foro-btn--ghost text-warning" (click)="cerrarHilo()">
+              {{ thread()?.is_closed ? 'Reabrir tema' : 'Cerrar tema' }}
+            </button>
+            <button class="foro-btn foro-btn--ghost text-danger" (click)="borrarHilo()">
+              Eliminar tema
+            </button>
+          }
+        </div>
+      </footer>
+    </article>
+
+    <!-- Listado de Respuestas -->
+    <section class="respuestas-section">
+      <h2 class="respuestas-section__title">
+        Respuestas ({{ thread()?.respuestas?.length || 0 }})
+      </h2>
+
+      <div class="respuestas-list">
+        @for (post of thread()?.respuestas; track post.id) {
+          <div 
+            class="post-card" 
+            [class.post-card--verified]="post.is_verified"
+            [class.post-card--best]="post.id === thread()?.best_post_id"
+          >
+            <!-- Panel de Votación -->
+            <div class="post-card__votes">
+              <button 
+                class="vote-btn vote-btn--up" 
+                [class.vote-btn--active]="post.mi_voto === 1"
+                (click)="votar(post, 1)"
+                title="Es útil"
+              >
+                ▲
+              </button>
+              <span class="vote-count" [class.vote-count--positive]="post.votos > 0" [class.vote-count--negative]="post.votos < 0">
+                {{ post.votos }}
+              </span>
+              <button 
+                class="vote-btn vote-btn--down" 
+                [class.vote-btn--active]="post.mi_voto === -1"
+                (click)="votar(post, -1)"
+                title="No es útil"
+              >
+                ▼
+              </button>
+            </div>
+
+            <!-- Contenido del Post -->
+            <div class="post-card__content">
+              <header class="post-card__header">
+                <div class="post-card__meta">
+                  <span class="post-card__author">{{ post.author_name || 'Ciudadano anónimo' }}</span>
+                  <span class="post-card__date">{{ post.created_at | date:'short' }}</span>
+                </div>
+
+                <div class="post-card__badges">
+                  @if (post.id === thread()?.best_post_id) {
+                    <span class="post-card__badge post-card__badge--best">
+                      ★ Mejor respuesta
+                    </span>
+                  }
+                  @if (post.is_verified) {
+                    <span class="post-card__badge post-card__badge--verified">
+                      ✓ Verificada por experto
+                    </span>
+                  }
+                </div>
+              </header>
+
+              <div class="post-card__body">
+                <p>{{ post.contenido }}</p>
+              </div>
+
+              <footer class="post-card__footer">
+                <div class="post-card__actions">
+                  <!-- Marcar mejor respuesta (solo autor del hilo) -->
+                  @if (authService.isLoggedIn() && authService.user()?.id === thread()?.author_id && post.id !== thread()?.best_post_id) {
+                    <button class="action-link" (click)="marcarMejorRespuesta(post)">
+                      Marcar como mejor respuesta
+                    </button>
+                  }
+                  
+                  <!-- Verificar (solo experto / admin) -->
+                  @if (authService.isLoggedIn() && authService.canVerify()) {
+                    <button class="action-link" (click)="verificar(post)">
+                      {{ post.is_verified ? 'Quitar verificación' : 'Verificar respuesta' }}
+                    </button>
+                  }
+
+                  <!-- Eliminar respuesta propia (solo autor del post) -->
+                  @if (authService.isLoggedIn() && authService.user()?.id === post.author_id) {
+                    <button class="action-link text-danger" (click)="borrarRespuesta(post)">
+                      Eliminar
+                    </button>
+                  }
+                </div>
+              </footer>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Formulario para responder -->
+    <section class="hilo-reply-section">
+      @if (thread()?.is_closed) {
+        <div class="hilo-closed-banner">
+          Este hilo ha sido cerrado y no admite nuevas respuestas.
+        </div>
+      } @else if (authService.isLoggedIn()) {
+        <h3 class="hilo-reply-section__title">Escribe una respuesta</h3>
+        <form (ngSubmit)="enviarRespuesta()" class="foro-form">
+          <label class="foro-form__field">
+            <textarea 
+              [(ngModel)]="nuevaRespuesta" 
+              name="contenido" 
+              rows="4" 
+              placeholder="Escribe tu respuesta argumentada o comentario constitucional aquí..."
+              required
+            ></textarea>
+          </label>
+
+          @if (errorRespuesta()) {
+            <p class="foro-form__error">{{ errorRespuesta() }}</p>
+          }
+
+          <div class="foro-form__actions">
+            <button type="submit" class="foro-btn foro-btn--primary" [disabled]="enviandoRespuesta() || !nuevaRespuesta.trim()">
+              {{ enviandoRespuesta() ? 'Publicando...' : 'Enviar respuesta' }}
+            </button>
+          </div>
+        </form>
+      } @else {
+        <div class="hilo-login-banner">
+          <a routerLink="/auth" class="hilo-login-banner__link">Inicia sesión</a> para participar y responder en este tema.
+        </div>
+      }
+    </section>
+  }
+</div>
