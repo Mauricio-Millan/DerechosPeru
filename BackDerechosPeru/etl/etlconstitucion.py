@@ -61,12 +61,26 @@ def clean_text_lines(lines_list):
     return "\n\n".join(paragraphs)
 
 
-def parse_constitution(file_path):
+def parse_constitution(file_path, encoding="utf-16"):
     """
-    Parses the Peruvian Constitution Markdown file using a state machine.
+    Parses a Constitution Markdown file using a state machine.
+    Thin wrapper: lee el archivo y delega en parse_constitution_text (función pura).
     """
-    with open(file_path, "r", encoding="utf-16") as f:
-        lines = f.readlines()
+    with open(file_path, "r", encoding=encoding) as f:
+        text = f.read()
+    return parse_constitution_text(text)
+
+
+def parse_constitution_text(text: str) -> dict:
+    """
+    Parsea el texto de una Constitución con una máquina de estados.
+
+    Función PURA (sin I/O): recibe el texto crudo (p. ej. extraído de un PDF o
+    leído de un .md) y devuelve la estructura jerárquica. La extracción de
+    formatos distintos al de 1993 será imperfecta; por eso existe la revisión
+    humana contra el PDF antes de publicar (M8).
+    """
+    lines = text.splitlines(keepends=True)
 
     # Output structure matching Supabase tables + extra sections
     titulos = []

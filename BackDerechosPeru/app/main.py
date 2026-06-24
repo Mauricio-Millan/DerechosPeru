@@ -11,6 +11,7 @@ from app.api.routes import (
     cuenta,
     estructura,
     forum,
+    ingesta,
 )
 from app.core.config import settings
 
@@ -36,6 +37,7 @@ app.include_router(admin.router, prefix=settings.API_PREFIX)
 app.include_router(cuenta.router, prefix=settings.API_PREFIX)
 app.include_router(forum.router, prefix=settings.API_PREFIX)
 app.include_router(annotations.router, prefix=settings.API_PREFIX)
+app.include_router(ingesta.router, prefix=settings.API_PREFIX)
 
 
 @app.get("/health", tags=["health"])

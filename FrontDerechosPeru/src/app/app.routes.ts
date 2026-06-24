@@ -20,6 +20,18 @@ export const routes: Routes = [
       import('./features/admin/usuarios.component').then(m => m.UsuariosComponent),
   },
   {
+    path: 'admin/ingesta',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./features/admin/ingesta/ingesta.component').then(m => m.IngestaComponent),
+  },
+  {
+    path: 'admin/ingesta/:versionId/revisar',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./features/admin/ingesta/revision.component').then(m => m.RevisionComponent),
+  },
+  {
     path: 'constitucion',
     loadComponent: () =>
       import('./features/constitucion/layout/constitucion-layout.component').then(

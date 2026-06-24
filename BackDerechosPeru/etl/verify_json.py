@@ -2,6 +2,70 @@ import json
 import os
 import sys
 
+
+def validate_structure(data: dict) -> dict:
+    """
+    Valida la integridad estructural de una constitución parseada, de forma
+    GENÉRICA (sin conteos cableados a 1993). Sirve como reporte QA de la ingesta.
+
+    Devuelve: {"ok": bool, "errors": [str, ...], "counts": {...}}
+    Comprueba:
+      - capítulos que referencian un título inexistente
+      - artículos que referencian un título/capítulo inexistente
+      - contenidos de artículo vacíos
+      - numeración de artículos: huecos y duplicados
+    """
+    titulos = data.get("titulos", []) or []
+    capitulos = data.get("capitulos", []) or []
+    articulos = data.get("articulos", []) or []
+
+    errors: list[str] = []
+
+    titulo_romanos = {t.get("numero_romano") for t in titulos}
+    capitulo_keys = {
+        (c.get("titulo_romano"), c.get("numero_romano")) for c in capitulos
+    }
+
+    for c in capitulos:
+        if c.get("titulo_romano") not in titulo_romanos:
+            errors.append(
+                f"Capítulo {c.get('numero_romano')} referencia un título inexistente: {c.get('titulo_romano')}"
+            )
+
+    nums: list[int] = []
+    for a in articulos:
+        num = a.get("numero")
+        tr = a.get("titulo_romano")
+        cr = a.get("capitulo_romano")
+        if not (a.get("contenido") or "").strip():
+            errors.append(f"Artículo {num} tiene contenido vacío")
+        if tr is not None and tr not in titulo_romanos:
+            errors.append(f"Artículo {num} referencia un título inexistente: {tr}")
+        if cr is not None and (tr, cr) not in capitulo_keys:
+            errors.append(f"Artículo {num} referencia un capítulo inexistente: {cr} (Título {tr})")
+        if isinstance(num, int):
+            nums.append(num)
+
+    duplicados = sorted({n for n in nums if nums.count(n) > 1})
+    if duplicados:
+        errors.append(f"Números de artículo duplicados: {duplicados}")
+
+    if nums:
+        faltantes = sorted(set(range(min(nums), max(nums) + 1)) - set(nums))
+        if faltantes:
+            errors.append(f"Huecos en la numeración de artículos: {faltantes}")
+
+    return {
+        "ok": len(errors) == 0,
+        "errors": errors,
+        "counts": {
+            "titulos": len(titulos),
+            "capitulos": len(capitulos),
+            "articulos": len(articulos),
+        },
+    }
+
+
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     json_path = os.path.join(script_dir, "constitucion.json")

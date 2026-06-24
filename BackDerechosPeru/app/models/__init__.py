@@ -8,6 +8,7 @@ from app.models.constitution import (
     Titulo,
 )
 from app.models.forum import ExpertAnnotation, ForumPost, ForumThread, PostVote
+from app.models.ingesta import IngestJob, SourceDocument
 
 __all__ = [
     "ConstitutionVersion",
@@ -23,4 +24,6 @@ __all__ = [
     "ForumPost",
     "PostVote",
     "ExpertAnnotation",
+    "SourceDocument",
+    "IngestJob",
 ]

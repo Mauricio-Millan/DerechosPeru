@@ -1,4 +1,5 @@
 """Modelos ORM del dominio constitucional."""
+import uuid
 from datetime import date, datetime
 
 from pgvector.sqlalchemy import Vector
@@ -12,6 +13,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    Uuid,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -28,6 +30,8 @@ class ConstitutionVersion(Base):
     year: Mapped[int] = mapped_column(Integer, nullable=False)
     promulgated_on: Mapped[date | None] = mapped_column(Date)
     is_current: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Ciclo de vida M8: borrador -> en_revision -> publicada -> archivada
+    status: Mapped[str] = mapped_column(Text, nullable=False, default="publicada")
     notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -84,6 +88,10 @@ class Articulo(Base):
     contenido: Mapped[str] = mapped_column(Text, nullable=False)
     embedding: Mapped[list[float] | None] = mapped_column(Vector(settings.EMBEDDING_DIM))
     is_published: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Revisión M8 vs PDF fuente: pendiente -> verificado / observado
+    review_status: Mapped[str] = mapped_column(Text, nullable=False, default="verificado")
+    reviewer_id: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

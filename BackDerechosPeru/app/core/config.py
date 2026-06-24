@@ -60,6 +60,12 @@ class Settings(BaseSettings):
     # 'authenticated' es la audiencia por defecto de los JWT de Supabase
     JWT_AUDIENCE: str = "authenticated"
 
+    # --- Ingesta de constituciones (Sprint 6 — M8) ---
+    # Service role key: SOLO en .env (gitignored) y como secret del Container App.
+    # Da acceso de escritura a Supabase Storage; NUNCA exponer al frontend.
+    SUPABASE_SERVICE_ROLE_KEY: str | None = None
+    SUPABASE_STORAGE_BUCKET: str = "constituciones"
+
 
 @lru_cache
 def get_settings() -> Settings:
