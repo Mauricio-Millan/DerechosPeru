@@ -17,6 +17,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')"
 
 COPY app ./app
+# etl es un paquete top-level que importa la ingesta (app/api/routes/ingesta.py).
+# Sin esto, `import etl...` falla al arrancar y el contenedor queda Unhealthy.
+COPY etl ./etl
 
 EXPOSE 8000
 # Azure Container Apps inyecta el puerto en $PORT (default 8000)
