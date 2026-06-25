@@ -1,0 +1,96 @@
+<section class="comparador">
+  <header class="comparador__intro">
+    <h2 class="comparador__title">Comparador de versiones</h2>
+    <p class="comparador__subtitle">
+      Empareja los artículos de dos constituciones por similitud de contenido y muestra qué cambió.
+    </p>
+  </header>
+
+  @if (versiones().length < 2) {
+    <div class="comparador__aviso">
+      Se necesitan al menos <strong>dos versiones publicadas</strong> para comparar.
+      Por ahora hay {{ versiones().length }}.
+    </div>
+  } @else {
+    <div class="comparador__controles">
+      <label class="comparador__campo">
+        <span>Versión A</span>
+        <select [(ngModel)]="baseId">
+          @for (v of versiones(); track v.id) {
+            <option [ngValue]="v.id">{{ v.label }} ({{ v.year }})</option>
+          }
+        </select>
+      </label>
+
+      <span class="comparador__vs" aria-hidden="true">→</span>
+
+      <label class="comparador__campo">
+        <span>Versión B</span>
+        <select [(ngModel)]="targetId">
+          @for (v of versiones(); track v.id) {
+            <option [ngValue]="v.id">{{ v.label }} ({{ v.year }})</option>
+          }
+        </select>
+      </label>
+
+      <button class="comparador__btn" [disabled]="!puedeComparar() || cargando()" (click)="comparar()">
+        {{ cargando() ? 'Comparando…' : 'Comparar' }}
+      </button>
+    </div>
+
+    @if (baseId === targetId) {
+      <p class="comparador__hint">Elige dos versiones distintas.</p>
+    }
+  }
+
+  @if (error()) {
+    <div class="comparador__error">{{ error() }}</div>
+  }
+
+  @if (comparacion(); as c) {
+    <div class="comparador__resumen">
+      <span class="chip chip--identico">{{ c.resumen.identicos }} idénticos</span>
+      <span class="chip chip--modificado">{{ c.resumen.modificados }} modificados</span>
+      <span class="chip chip--sin_equivalente">{{ c.resumen.sin_equivalente }} sin equivalente</span>
+      <span class="chip chip--nuevo">{{ c.resumen.nuevos }} nuevos</span>
+    </div>
+
+    <div class="comparador__cabecera">
+      <div>{{ c.base.label }} ({{ c.base.year }})</div>
+      <div>{{ c.target.label }} ({{ c.target.year }})</div>
+    </div>
+
+    <ul class="comparador__filas">
+      @for (f of c.filas; track $index) {
+        <li class="fila fila--{{ f.estado }}">
+          <div class="fila__lado">
+            @if (f.base) {
+              <div class="fila__num">Art. {{ f.base.numero }}</div>
+              @if (f.base.sumilla) { <div class="fila__sumilla">{{ f.base.sumilla }}</div> }
+              <p class="fila__texto">{{ f.base.contenido }}</p>
+            } @else {
+              <div class="fila__vacio">— No existe en esta versión</div>
+            }
+          </div>
+
+          <div class="fila__centro">
+            <span class="chip chip--{{ f.estado }}">{{ etiquetaEstado(f.estado) }}</span>
+            @if (f.estado === 'modificado' || f.estado === 'identico') {
+              <span class="fila__pct">{{ f.similarity * 100 | number: '1.0-0' }}%</span>
+            }
+          </div>
+
+          <div class="fila__lado">
+            @if (f.target) {
+              <div class="fila__num">Art. {{ f.target.numero }}</div>
+              @if (f.target.sumilla) { <div class="fila__sumilla">{{ f.target.sumilla }}</div> }
+              <p class="fila__texto">{{ f.target.contenido }}</p>
+            } @else {
+              <div class="fila__vacio">— No existe en esta versión</div>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>

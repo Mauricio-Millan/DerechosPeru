@@ -10,6 +10,7 @@ import {
   ArticulosResponse,
   ConsultaResponse,
 } from '../models/constitucion.models';
+import { VersionPublica, Comparacion } from '../models/comparador.models';
 import { environment } from '../../../environments/environment';
 
 const API_BASE = environment.apiUrl;
@@ -54,5 +55,14 @@ export class ConstitucionService {
 
   consultarGuiada(texto: string): Observable<ConsultaResponse> {
     return this.http.post<ConsultaResponse>(`${API_BASE}/consulta`, { texto });
+  }
+
+  getVersionesPublicadas(): Observable<VersionPublica[]> {
+    return this.http.get<VersionPublica[]>(`${API_BASE}/versions`);
+  }
+
+  comparar(baseId: number, targetId: number): Observable<Comparacion> {
+    const params = new HttpParams().set('base', baseId).set('target', targetId);
+    return this.http.get<Comparacion>(`${API_BASE}/compare`, { params });
   }
 }

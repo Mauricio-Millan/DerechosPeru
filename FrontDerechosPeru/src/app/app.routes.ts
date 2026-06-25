@@ -53,6 +53,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'comparador',
+        loadComponent: () =>
+          import('./features/constitucion/comparador/comparador.component').then(
+            m => m.ComparadorComponent
+          ),
+      },
+      {
         path: 'guardados',
         loadComponent: () =>
           import('./features/constitucion/guardados/guardados.component').then(

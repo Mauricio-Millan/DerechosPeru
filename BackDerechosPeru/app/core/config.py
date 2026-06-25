@@ -52,6 +52,10 @@ class Settings(BaseSettings):
     GUIDED_MATCH_COUNT: int = 5
     GUIDED_MIN_SIMILARITY: float = 0.25
 
+    # --- Comparador de versiones (Sprint 4) ---
+    # Umbral de similitud coseno para considerar dos artículos equivalentes.
+    COMPARE_MIN_SIMILARITY: float = 0.45
+
     # --- Auth (Supabase emite el JWT; el backend solo lo verifica) ---
     # URL pública del proyecto Supabase (no es secreto)
     SUPABASE_URL: str = "https://ibwxubyunahygfsgljdg.supabase.co"
