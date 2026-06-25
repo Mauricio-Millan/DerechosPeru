@@ -28,22 +28,14 @@ jobs:
           tenant-id: ${{ secrets.BACKDERECHOS_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.BACKDERECHOS_AZURE_SUBSCRIPTION_ID }}
 
-      # Build directo del Dockerfile (sin el builder Oryx del deploy-action, que
-      # rompió upstream con "Unrecognized command or argument 'process'").
-      - name: Log in to ACR
-        uses: docker/login-action@v3
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
         with:
-          registry: derechosperuacr2026.azurecr.io
-          username: ${{ secrets.BACKDERECHOS_REGISTRY_USERNAME }}
-          password: ${{ secrets.BACKDERECHOS_REGISTRY_PASSWORD }}
-
-      - name: Build and push image
-        run: |
-          IMAGE=derechosperuacr2026.azurecr.io/back-derechos:${{ github.sha }}
-          docker build -t "$IMAGE" -f BackDerechosPeru/Dockerfile BackDerechosPeru
-          docker push "$IMAGE"
-
-      - name: Deploy to Container App
-        run: |
-          az containerapp update -n back-derechos -g rg-derechosperu \
-            --image derechosperuacr2026.azurecr.io/back-derechos:${{ github.sha }}
+          appSourcePath: ${{ github.workspace }}/BackDerechosPeru
+          dockerfilePath: ./Dockerfile
+          registryUrl: derechosperuacr2026.azurecr.io
+          registryUsername: ${{ secrets.BACKDERECHOS_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.BACKDERECHOS_REGISTRY_PASSWORD }}
+          containerAppName: back-derechos
+          resourceGroup: rg-derechosperu
+          imageToBuild: derechosperuacr2026.azurecr.io/back-derechos:${{ github.sha }}

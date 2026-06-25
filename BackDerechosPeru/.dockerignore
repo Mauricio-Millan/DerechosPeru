@@ -4,7 +4,6 @@ __pycache__/
 *.pyc
 .venv/
 .pytest_cache/
-etl/
 scripts/
 sql/
 .agents/
