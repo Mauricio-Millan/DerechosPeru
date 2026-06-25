@@ -106,6 +106,20 @@
           <p class="estructura__vacio">No hay artículos en este capítulo.</p>
         }
       }
+    } @else if (cargandoInicial()) {
+      <div class="estructura__empty-state">
+        <div class="estructura__loading" aria-label="Cargando la Constitución">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="estructura__skeleton"></div>
+          }
+        </div>
+        <p class="estructura__loading-msg">Cargando la Constitución…</p>
+        @if (servidorLento()) {
+          <p class="estructura__loading-hint">
+            El servidor estaba en reposo y está despertando. Esto solo tarda la primera vez, un momento…
+          </p>
+        }
+      </div>
     } @else {
       <div class="estructura__empty-state">
         <p>Selecciona un título del índice para comenzar.</p>

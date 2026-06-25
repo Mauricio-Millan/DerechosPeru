@@ -20,6 +20,8 @@ export class EstructuraComponent implements OnInit {
   readonly capituloActivo = signal<Capitulo | null>(null);
   readonly articulos = signal<Articulo[]>([]);
   readonly cargando = signal(false);
+  readonly cargandoInicial = signal(true);
+  readonly servidorLento = signal(false);
   readonly sidebarVisible = signal(false);
 
   toggleSidebar(): void {
@@ -33,12 +35,21 @@ export class EstructuraComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // El backend escala a cero: la 1ª visita puede pagar un cold start de
+    // varios segundos. A los 5s avisamos que el servidor está "despertando".
+    const lentoTimer = setTimeout(() => this.servidorLento.set(true), 5000);
     this.service.getTitulos().subscribe({
       next: data => {
+        clearTimeout(lentoTimer);
+        this.cargandoInicial.set(false);
         this.titulos.set(data);
         if (data.length > 0) {
           this.onTituloSeleccionado(data[0]);
         }
+      },
+      error: () => {
+        clearTimeout(lentoTimer);
+        this.cargandoInicial.set(false);
       },
     });
   }

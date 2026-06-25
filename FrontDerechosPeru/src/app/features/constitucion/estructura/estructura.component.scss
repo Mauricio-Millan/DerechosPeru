@@ -154,6 +154,19 @@
     color: v.$color-text-muted;
     font-size: v.$font-size-sm;
   }
+
+  &__loading-msg {
+    margin-top: v.$spacing-md;
+    color: v.$color-text-secondary;
+    font-size: v.$font-size-base;
+    font-weight: 600;
+  }
+
+  &__loading-hint {
+    margin-top: v.$spacing-xs;
+    color: v.$color-text-muted;
+    font-size: v.$font-size-sm;
+  }
 }
 
 @keyframes shimmer {
