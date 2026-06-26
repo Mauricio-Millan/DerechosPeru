@@ -1,6 +1,6 @@
 """Artículos: por capítulo, búsqueda/filtro y por ids (contrato del front)."""
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func, select, text
+from sqlalchemy import func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -74,8 +74,17 @@ async def articulos(
         if q.isdigit():
             filters.append(Articulo.numero == int(q))
         else:
+            # Búsqueda amigable: full-text en español (acentos/raíces) OR coincidencia
+            # parcial por término con ILIKE ("educ" -> "educación"). Antes solo hacía
+            # full-text exacto y resultaba rígido.
             ts_param = q
-            filters.append(text("search_tsv @@ plainto_tsquery('spanish', :q)"))
+            conds = [text("search_tsv @@ plainto_tsquery('spanish', :q)")]
+            for tok in q.split():
+                like = f"%{tok}%"
+                conds.append(Articulo.contenido.ilike(like))
+                conds.append(Articulo.sumilla.ilike(like))
+            filters.append(or_(*conds))
+            # Ordena por relevancia full-text; las coincidencias solo-ILIKE quedan después.
             rank_order = func.ts_rank(text("search_tsv"), func.plainto_tsquery("spanish", q)).desc()
 
     count_stmt = select(func.count(Articulo.id))
@@ -92,7 +101,10 @@ async def articulos(
     page_stmt = page_stmt.where(*filters)
     if ts_param is not None:
         page_stmt = page_stmt.params(q=ts_param)
-    page_stmt = page_stmt.order_by(rank_order if rank_order is not None else Articulo.numero)
+    if rank_order is not None:
+        page_stmt = page_stmt.order_by(rank_order, Articulo.numero)
+    else:
+        page_stmt = page_stmt.order_by(Articulo.numero)
     page_stmt = page_stmt.limit(limit).offset(offset)
 
     arts = (await db.execute(page_stmt)).scalars().all()
