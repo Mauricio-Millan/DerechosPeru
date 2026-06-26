@@ -8,6 +8,9 @@ import {
   IngestResult,
   Progreso,
   QAReport,
+  Estructura,
+  TituloDraft,
+  CapituloDraft,
 } from '../models/ingesta.models';
 
 const API = `${environment.apiUrl}/admin`;
@@ -54,5 +57,46 @@ export class IngestaService {
 
   publicar(versionId: number): Observable<ConstitutionVersion> {
     return this.http.post<ConstitutionVersion>(`${API}/versions/${versionId}/publish`, {});
+  }
+
+  // --- Revisión de estructura ---
+  getEstructura(versionId: number): Observable<Estructura> {
+    return this.http.get<Estructura>(`${API}/versions/${versionId}/estructura`);
+  }
+
+  crearTitulo(versionId: number, numero_romano: string, denominacion: string): Observable<TituloDraft> {
+    return this.http.post<TituloDraft>(`${API}/versions/${versionId}/titulos`, { numero_romano, denominacion });
+  }
+
+  editarTitulo(id: number, cambios: Partial<{ numero_romano: string; denominacion: string }>): Observable<TituloDraft> {
+    return this.http.patch<TituloDraft>(`${API}/titulos/${id}`, cambios);
+  }
+
+  borrarTitulo(id: number): Observable<void> {
+    return this.http.delete<void>(`${API}/titulos/${id}`);
+  }
+
+  crearCapitulo(versionId: number, titulo_id: number, numero_romano: string, denominacion: string): Observable<CapituloDraft> {
+    return this.http.post<CapituloDraft>(`${API}/versions/${versionId}/capitulos`, { titulo_id, numero_romano, denominacion });
+  }
+
+  editarCapitulo(id: number, cambios: Partial<{ numero_romano: string; denominacion: string; titulo_id: number }>): Observable<CapituloDraft> {
+    return this.http.patch<CapituloDraft>(`${API}/capitulos/${id}`, cambios);
+  }
+
+  borrarCapitulo(id: number): Observable<void> {
+    return this.http.delete<void>(`${API}/capitulos/${id}`);
+  }
+
+  asignarArticulosACapitulo(capituloId: number, articulo_ids: number[]): Observable<void> {
+    return this.http.post<void>(`${API}/capitulos/${capituloId}/asignar-articulos`, { articulo_ids });
+  }
+
+  asignarArticulosATitulo(tituloId: number, articulo_ids: number[]): Observable<void> {
+    return this.http.post<void>(`${API}/titulos/${tituloId}/asignar-articulos`, { articulo_ids });
+  }
+
+  asignarCapitulosATitulo(tituloId: number, capitulo_ids: number[]): Observable<void> {
+    return this.http.post<void>(`${API}/titulos/${tituloId}/asignar-capitulos`, { capitulo_ids });
   }
 }

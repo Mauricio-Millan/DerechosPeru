@@ -42,3 +42,36 @@ export interface Progreso {
   pendientes: number;
   pct: number;
 }
+
+export interface TituloDraft {
+  id: number;
+  numero_romano: string;
+  denominacion: string;
+  display_order: number | null;
+  total_capitulos: number;
+  total_articulos: number;
+}
+
+export interface CapituloDraft {
+  id: number;
+  titulo_id: number;
+  numero_romano: string;
+  denominacion: string;
+  display_order: number | null;
+  total_articulos: number;
+}
+
+export interface ArticuloEstructura {
+  id: number;
+  numero: number;
+  sumilla: string | null;
+  titulo_id: number | null;
+  capitulo_id: number | null;
+  review_status: 'pendiente' | 'verificado' | 'observado';
+}
+
+export interface Estructura {
+  titulos: TituloDraft[];
+  capitulos: CapituloDraft[];
+  articulos: ArticuloEstructura[];
+}

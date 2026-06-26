@@ -6,15 +6,20 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IngestaService } from '../../../core/services/ingesta.service';
 import { DraftArticulo, Progreso } from '../../../core/models/ingesta.models';
 import { MarkdownEditorComponent } from '../../../shared/components/markdown-editor/markdown-editor.component';
+import { RevisionEstructuraComponent } from './revision-estructura.component';
 
 @Component({
   selector: 'app-revision',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MarkdownEditorComponent],
+  imports: [CommonModule, FormsModule, RouterLink, MarkdownEditorComponent, RevisionEstructuraComponent],
   template: `
     <div class="rev">
       <header class="rev__bar">
         <a routerLink="/admin/ingesta" class="rev__back">← Ingesta</a>
+        <div class="rev__tabs">
+          <button class="rev__tab" [class.rev__tab--on]="tab() === 'articulos'" (click)="tab.set('articulos')">Artículos</button>
+          <button class="rev__tab" [class.rev__tab--on]="tab() === 'estructura'" (click)="tab.set('estructura')">Estructura</button>
+        </div>
         <div class="rev__progress">
           <div class="bar"><div class="bar__fill" [style.width.%]="progreso()?.pct ?? 0"></div></div>
           <span class="rev__pct">
@@ -41,9 +46,11 @@ import { MarkdownEditorComponent } from '../../../shared/components/markdown-edi
           }
         </section>
 
-        <!-- Artículos extraídos -->
+        <!-- Artículos extraídos / Estructura -->
         <section class="rev__list">
-          @if (cargando()) {
+          @if (tab() === 'estructura') {
+            <app-revision-estructura [versionId]="versionId" />
+          } @else if (cargando()) {
             <p class="muted muted--pad">Cargando artículos…</p>
           } @else {
             @for (a of articulos(); track a.id) {
@@ -75,6 +82,9 @@ import { MarkdownEditorComponent } from '../../../shared/components/markdown-edi
       padding: v.$spacing-sm v.$spacing-lg; background: white; border-bottom: 1px solid v.$color-border;
     }
     .rev__back { color: v.$color-primary; font-weight: 600; text-decoration: none; font-size: v.$font-size-sm; white-space: nowrap; }
+    .rev__tabs { display: flex; gap: 2px; background: v.$color-bg-subtle; border-radius: v.$radius-md; padding: 2px; }
+    .rev__tab { border: none; background: transparent; padding: 5px 14px; border-radius: v.$radius-sm; font-size: v.$font-size-sm; font-weight: 600; color: v.$color-text-muted; cursor: pointer; font-family: v.$font-family-ui; }
+    .rev__tab--on { background: white; color: v.$color-primary; box-shadow: v.$shadow-card; }
     .rev__progress { flex: 1; display: flex; align-items: center; gap: v.$spacing-sm; }
     .rev__pct { font-size: v.$font-size-xs; color: v.$color-text-muted; white-space: nowrap; }
     .bar { flex: 1; height: 8px; background: v.$color-bg-subtle; border-radius: v.$radius-pill; overflow: hidden; max-width: 360px; }
@@ -132,7 +142,8 @@ export class RevisionComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
 
-  private versionId = 0;
+  versionId = 0;
+  readonly tab = signal<'articulos' | 'estructura'>('articulos');
   readonly articulos = signal<DraftArticulo[]>([]);
   readonly progreso = signal<Progreso | null>(null);
   readonly pdfUrl = signal<SafeResourceUrl | null>(null);
