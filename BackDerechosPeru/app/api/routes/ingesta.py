@@ -15,7 +15,7 @@ from __future__ import annotations
 from datetime import date, datetime
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import CurrentUser, require_role
@@ -29,12 +29,20 @@ from app.models import (
     Titulo,
 )
 from app.schemas.ingesta import (
+    ArticuloEstructura,
+    AsignarArticulosIn,
+    AsignarCapitulosIn,
+    CapituloDraft,
+    CapituloIn,
     DraftArticuloOut,
+    EstructuraOut,
     IngestResult,
     ProgressOut,
     QAReport,
     ReviewIn,
     SignedUrlOut,
+    TituloDraft,
+    TituloIn,
     VersionOut,
 )
 from app.services import storage
@@ -380,3 +388,256 @@ async def publicar(version_id: int, user: CurrentUser = Depends(_editor), db: As
         total_articulos=total,
         verificados=total,
     )
+
+
+# ============================================================
+# Revisión de estructura: títulos/capítulos y vinculación (casillas)
+# ============================================================
+
+
+async def _max_order(db: AsyncSession, model, version_id: int) -> int:
+    val = await db.scalar(
+        select(func.max(model.display_order)).where(model.version_id == version_id)
+    )
+    return (val or 0) + 1
+
+
+async def _get_titulo(db: AsyncSession, titulo_id: int) -> Titulo:
+    t = await db.get(Titulo, titulo_id)
+    if not t:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Título no encontrado")
+    return t
+
+
+async def _get_capitulo(db: AsyncSession, capitulo_id: int) -> Capitulo:
+    c = await db.get(Capitulo, capitulo_id)
+    if not c:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Capítulo no encontrado")
+    return c
+
+
+@router.get("/versions/{version_id}/estructura", response_model=EstructuraOut)
+async def estructura(version_id: int, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    titulos = (
+        await db.execute(
+            select(Titulo).where(Titulo.version_id == version_id).order_by(Titulo.display_order, Titulo.id)
+        )
+    ).scalars().all()
+    capitulos = (
+        await db.execute(
+            select(Capitulo).where(Capitulo.version_id == version_id).order_by(Capitulo.display_order, Capitulo.id)
+        )
+    ).scalars().all()
+    articulos = (
+        await db.execute(
+            select(Articulo).where(Articulo.version_id == version_id).order_by(Articulo.numero)
+        )
+    ).scalars().all()
+
+    # Conteos para mostrar (y para gobernar el borrado en el front).
+    art_por_cap: dict[int, int] = {}
+    art_por_tit: dict[int, int] = {}
+    for a in articulos:
+        if a.capitulo_id:
+            art_por_cap[a.capitulo_id] = art_por_cap.get(a.capitulo_id, 0) + 1
+        if a.titulo_id:
+            art_por_tit[a.titulo_id] = art_por_tit.get(a.titulo_id, 0) + 1
+    cap_por_tit: dict[int, int] = {}
+    for c in capitulos:
+        cap_por_tit[c.titulo_id] = cap_por_tit.get(c.titulo_id, 0) + 1
+
+    return EstructuraOut(
+        titulos=[
+            TituloDraft(
+                id=t.id,
+                numero_romano=t.numero_romano,
+                denominacion=t.denominacion,
+                display_order=t.display_order,
+                total_capitulos=cap_por_tit.get(t.id, 0),
+                total_articulos=art_por_tit.get(t.id, 0),
+            )
+            for t in titulos
+        ],
+        capitulos=[
+            CapituloDraft(
+                id=c.id,
+                titulo_id=c.titulo_id,
+                numero_romano=c.numero_romano,
+                denominacion=c.denominacion,
+                display_order=c.display_order,
+                total_articulos=art_por_cap.get(c.id, 0),
+            )
+            for c in capitulos
+        ],
+        articulos=[
+            ArticuloEstructura(
+                id=a.id,
+                numero=a.numero,
+                sumilla=a.sumilla,
+                titulo_id=a.titulo_id,
+                capitulo_id=a.capitulo_id,
+                review_status=a.review_status,
+            )
+            for a in articulos
+        ],
+    )
+
+
+def _titulo_out(t: Titulo, total_capitulos: int = 0, total_articulos: int = 0) -> TituloDraft:
+    return TituloDraft(
+        id=t.id,
+        numero_romano=t.numero_romano,
+        denominacion=t.denominacion,
+        display_order=t.display_order,
+        total_capitulos=total_capitulos,
+        total_articulos=total_articulos,
+    )
+
+
+def _capitulo_out(c: Capitulo, total_articulos: int = 0) -> CapituloDraft:
+    return CapituloDraft(
+        id=c.id,
+        titulo_id=c.titulo_id,
+        numero_romano=c.numero_romano,
+        denominacion=c.denominacion,
+        display_order=c.display_order,
+        total_articulos=total_articulos,
+    )
+
+
+# --- Títulos ---
+
+@router.post("/versions/{version_id}/titulos", response_model=TituloDraft)
+async def crear_titulo(version_id: int, payload: TituloIn, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    t = Titulo(
+        version_id=version_id,
+        numero_romano=payload.numero_romano or "?",
+        denominacion=payload.denominacion or "Sin denominación",
+        display_order=await _max_order(db, Titulo, version_id),
+    )
+    db.add(t)
+    await db.commit()
+    await db.refresh(t)
+    return _titulo_out(t)
+
+
+@router.patch("/titulos/{titulo_id}", response_model=TituloDraft)
+async def editar_titulo(titulo_id: int, payload: TituloIn, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    t = await _get_titulo(db, titulo_id)
+    if payload.numero_romano is not None:
+        t.numero_romano = payload.numero_romano
+    if payload.denominacion is not None:
+        t.denominacion = payload.denominacion
+    await db.commit()
+    await db.refresh(t)
+    return _titulo_out(t)
+
+
+@router.delete("/titulos/{titulo_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def borrar_titulo(titulo_id: int, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    t = await _get_titulo(db, titulo_id)
+    n_cap = await db.scalar(select(func.count()).where(Capitulo.titulo_id == titulo_id)) or 0
+    n_art = await db.scalar(select(func.count()).where(Articulo.titulo_id == titulo_id)) or 0
+    if n_cap or n_art:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"El título tiene {n_cap} capítulos y {n_art} artículos. Reasigna primero sus elementos.",
+        )
+    await db.delete(t)
+    await db.commit()
+
+
+# --- Capítulos ---
+
+@router.post("/versions/{version_id}/capitulos", response_model=CapituloDraft)
+async def crear_capitulo(version_id: int, payload: CapituloIn, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    if not payload.titulo_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Un capítulo requiere un título")
+    await _get_titulo(db, payload.titulo_id)
+    c = Capitulo(
+        version_id=version_id,
+        titulo_id=payload.titulo_id,
+        numero_romano=payload.numero_romano or "?",
+        denominacion=payload.denominacion or "Sin denominación",
+        display_order=await _max_order(db, Capitulo, version_id),
+    )
+    db.add(c)
+    await db.commit()
+    await db.refresh(c)
+    return _capitulo_out(c)
+
+
+@router.patch("/capitulos/{capitulo_id}", response_model=CapituloDraft)
+async def editar_capitulo(capitulo_id: int, payload: CapituloIn, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    c = await _get_capitulo(db, capitulo_id)
+    if payload.numero_romano is not None:
+        c.numero_romano = payload.numero_romano
+    if payload.denominacion is not None:
+        c.denominacion = payload.denominacion
+    if payload.titulo_id is not None and payload.titulo_id != c.titulo_id:
+        await _get_titulo(db, payload.titulo_id)
+        c.titulo_id = payload.titulo_id
+        # Propaga a los artículos del capítulo para mantener consistencia.
+        await db.execute(
+            update(Articulo).where(Articulo.capitulo_id == capitulo_id).values(titulo_id=payload.titulo_id)
+        )
+    await db.commit()
+    await db.refresh(c)
+    return _capitulo_out(c)
+
+
+@router.delete("/capitulos/{capitulo_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def borrar_capitulo(capitulo_id: int, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    c = await _get_capitulo(db, capitulo_id)
+    n_art = await db.scalar(select(func.count()).where(Articulo.capitulo_id == capitulo_id)) or 0
+    if n_art:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"El capítulo tiene {n_art} artículos. Reasígnalos antes de borrarlo.",
+        )
+    await db.delete(c)
+    await db.commit()
+
+
+# --- Reasignación masiva (casillas) ---
+
+@router.post("/capitulos/{capitulo_id}/asignar-articulos", status_code=status.HTTP_204_NO_CONTENT)
+async def asignar_articulos_a_capitulo(capitulo_id: int, payload: AsignarArticulosIn, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    c = await _get_capitulo(db, capitulo_id)
+    if payload.articulo_ids:
+        await db.execute(
+            update(Articulo)
+            .where(Articulo.id.in_(payload.articulo_ids), Articulo.version_id == c.version_id)
+            .values(capitulo_id=capitulo_id, titulo_id=c.titulo_id)
+        )
+        await db.commit()
+
+
+@router.post("/titulos/{titulo_id}/asignar-articulos", status_code=status.HTTP_204_NO_CONTENT)
+async def asignar_articulos_a_titulo(titulo_id: int, payload: AsignarArticulosIn, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    t = await _get_titulo(db, titulo_id)
+    if payload.articulo_ids:
+        await db.execute(
+            update(Articulo)
+            .where(Articulo.id.in_(payload.articulo_ids), Articulo.version_id == t.version_id)
+            .values(titulo_id=titulo_id, capitulo_id=None)
+        )
+        await db.commit()
+
+
+@router.post("/titulos/{titulo_id}/asignar-capitulos", status_code=status.HTTP_204_NO_CONTENT)
+async def asignar_capitulos_a_titulo(titulo_id: int, payload: AsignarCapitulosIn, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    t = await _get_titulo(db, titulo_id)
+    if payload.capitulo_ids:
+        await db.execute(
+            update(Capitulo)
+            .where(Capitulo.id.in_(payload.capitulo_ids), Capitulo.version_id == t.version_id)
+            .values(titulo_id=titulo_id)
+        )
+        # Propaga el título a los artículos de esos capítulos.
+        await db.execute(
+            update(Articulo)
+            .where(Articulo.capitulo_id.in_(payload.capitulo_ids), Articulo.version_id == t.version_id)
+            .values(titulo_id=titulo_id)
+        )
+        await db.commit()
