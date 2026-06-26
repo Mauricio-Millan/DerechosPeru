@@ -8,6 +8,16 @@ export interface Novedad {
 // despliegue con mejoras relevantes. NOVEDADES[0] se considera la más reciente.
 export const NOVEDADES: Novedad[] = [
   {
+    version: 'v1.4',
+    fecha: '2026-06-25',
+    cambios: [
+      'Panel de analítica para administradores: artículos más consultados y vacíos de conocimiento.',
+      'Área de administración reorganizada por roles (editor y admin).',
+      'Editor de contenido con formato Markdown y vista previa.',
+      'Búsqueda directa más flexible: encuentra coincidencias parciales, no solo términos exactos.',
+    ],
+  },
+  {
     version: 'v1.3',
     fecha: '2026-06-25',
     cambios: [
