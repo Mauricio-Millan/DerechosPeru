@@ -5,11 +5,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IngestaService } from '../../../core/services/ingesta.service';
 import { DraftArticulo, Progreso } from '../../../core/models/ingesta.models';
+import { MarkdownEditorComponent } from '../../../shared/components/markdown-editor/markdown-editor.component';
 
 @Component({
   selector: 'app-revision',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, MarkdownEditorComponent],
   template: `
     <div class="rev">
       <header class="rev__bar">
@@ -51,7 +52,7 @@ import { DraftArticulo, Progreso } from '../../../core/models/ingesta.models';
                   <span class="art__num">Art. {{ a.numero }}</span>
                   <span class="chip chip--{{ a.review_status }}">{{ a.review_status }}</span>
                 </div>
-                <textarea class="art__text" [(ngModel)]="a.contenido" rows="5"></textarea>
+                <app-markdown-editor [(value)]="a.contenido" [rows]="6" />
                 <div class="art__actions">
                   <button class="btn btn--verify" (click)="marcar(a, 'verificado')">✓ Verificar</button>
                   <button class="btn btn--observe" (click)="marcar(a, 'observado')">⚑ Observar</button>

@@ -6,11 +6,12 @@ import { GuardadosService } from '../../../core/services/guardados.service';
 import { ForoService } from '../../../core/services/foro.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Annotation } from '../../../core/models/foro.models';
+import { MarkdownPipe } from '../../pipes/markdown.pipe';
 
 @Component({
   selector: 'app-article-card',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MarkdownPipe],
   templateUrl: './article-card.component.html',
   styleUrl: './article-card.component.scss',
 })

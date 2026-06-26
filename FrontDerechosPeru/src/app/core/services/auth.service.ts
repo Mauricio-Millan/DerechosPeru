@@ -39,6 +39,9 @@ export class AuthService {
   readonly isLoggedIn = computed(() => this._session() != null);
   readonly rol = this._rol.asReadonly();
   readonly isAdmin = computed(() => this._rol() === 'admin');
+  readonly isEditor = computed(() => this._rol() === 'editor');
+  /** "Staff" = puede entrar al área admin (ingesta + analítica). */
+  readonly isStaff = computed(() => ['editor', 'admin'].includes(this._rol()));
   readonly canVerify = computed(() => ['experto', 'editor', 'admin'].includes(this._rol()));
 
   constructor() {

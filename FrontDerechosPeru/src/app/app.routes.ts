@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
+import { staffGuard } from './core/guards/staff.guard';
 
 export const routes: Routes = [
   {
@@ -9,25 +10,32 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    canActivate: [adminGuard],
+    canActivate: [staffGuard],
     loadComponent: () =>
-      import('./features/admin/admin-panel.component').then(m => m.AdminPanelComponent),
+      import('./features/admin/layout/admin-layout.component').then(m => m.AdminLayoutComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+      },
+      {
+        path: 'usuarios',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/usuarios.component').then(m => m.UsuariosComponent),
+      },
+      {
+        path: 'ingesta',
+        loadComponent: () =>
+          import('./features/admin/ingesta/ingesta.component').then(m => m.IngestaComponent),
+      },
+    ],
   },
   {
-    path: 'admin/usuarios',
-    canActivate: [adminGuard],
-    loadComponent: () =>
-      import('./features/admin/usuarios.component').then(m => m.UsuariosComponent),
-  },
-  {
-    path: 'admin/ingesta',
-    canActivate: [adminGuard],
-    loadComponent: () =>
-      import('./features/admin/ingesta/ingesta.component').then(m => m.IngestaComponent),
-  },
-  {
+    // Pantalla completa (PDF | artículos): fuera del layout para usar todo el alto.
     path: 'admin/ingesta/:versionId/revisar',
-    canActivate: [adminGuard],
+    canActivate: [staffGuard],
     loadComponent: () =>
       import('./features/admin/ingesta/revision.component').then(m => m.RevisionComponent),
   },

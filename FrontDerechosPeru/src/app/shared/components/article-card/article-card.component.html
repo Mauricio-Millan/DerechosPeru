@@ -51,7 +51,7 @@
 
   @if (expandido()) {
     <div class="card__body">
-      <p class="card__contenido">{{ articulo.contenido }}</p>
+      <div class="card__contenido" [innerHTML]="articulo.contenido | markdown"></div>
       <div class="card__meta">
         <span>Art. {{ articulo.numero }}</span>
         <span class="card__meta-sep">·</span>
