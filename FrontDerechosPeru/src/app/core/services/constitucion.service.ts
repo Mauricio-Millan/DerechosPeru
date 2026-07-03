@@ -58,8 +58,12 @@ export class ConstitucionService {
     return this.http.post<ConsultaResponse>(`${API_BASE}/consulta`, { texto });
   }
 
-  chatConstitucional(pregunta: string): Observable<ChatResponse> {
-    return this.http.post<ChatResponse>(`${API_BASE}/consulta/chat`, { pregunta });
+  chatConstitucional(payload: {
+    mensaje: string;
+    historial: { rol: string; texto: string }[];
+    articulos_ids?: number[];
+  }): Observable<ChatResponse> {
+    return this.http.post<ChatResponse>(`${API_BASE}/consulta/chat`, payload);
   }
 
   getVersionesPublicadas(): Observable<VersionPublica[]> {

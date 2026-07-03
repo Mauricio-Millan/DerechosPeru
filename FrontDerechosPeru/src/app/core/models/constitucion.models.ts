@@ -85,8 +85,10 @@ export interface ConsultaResponse {
 }
 
 export interface FuenteChat {
+  id: number;
   numero: number;
   sumilla: string;
+  contenido: string;
   similarity: number;
 }
 
@@ -98,5 +100,9 @@ export interface ChatResponse {
 export interface MensajeChat {
   rol: 'user' | 'bot';
   texto: string;
-  fuentes?: FuenteChat[];
+  fuentes?: FuenteChat[];  // solo en la primera respuesta del bot
 }
+
+export type SegmentoMensaje =
+  | { type: 'text'; value: string }
+  | { type: 'ref'; value: string; numero: number };

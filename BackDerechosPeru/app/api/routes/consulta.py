@@ -19,13 +19,22 @@ async def consulta_guiada(payload: ConsultaRequest, db: AsyncSession = Depends(g
     return ConsultaResponse(query=payload.texto, resultados=resultados)
 
 
+class MensajeHistorial(BaseModel):
+    rol: str  # "user" | "bot"
+    texto: str
+
+
 class ChatRequest(BaseModel):
-    pregunta: str
+    mensaje: str
+    historial: list[MensajeHistorial] = []
+    articulos_ids: list[int] | None = None  # None = primera llamada (RAG + log)
 
 
 class FuenteChat(BaseModel):
+    id: int
     numero: int
     sumilla: str
+    contenido: str
     similarity: float
 
 
@@ -36,9 +45,14 @@ class ChatResponse(BaseModel):
 
 @router.post("/chat", response_model=ChatResponse, dependencies=[Depends(get_current_user)])
 async def chat_constitucional(payload: ChatRequest, db: AsyncSession = Depends(get_db)):
-    """Chat con IA sobre la Constitución vigente. Requiere sesión."""
+    """Chat con IA sobre la Constitución vigente. Primera llamada hace RAG+log; las demás reusan el contexto."""
     try:
-        result = await chat(db, payload.pregunta)
+        result = await chat(
+            db,
+            mensaje=payload.mensaje,
+            historial=[m.model_dump() for m in payload.historial],
+            articulos_ids=payload.articulos_ids,
+        )
     except ValueError as e:
         raise HTTPException(status_code=503, detail=str(e))
     return result

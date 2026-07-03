@@ -2,7 +2,10 @@ import { Component, inject, signal, ElementRef, viewChild } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConstitucionService } from '../../../core/services/constitucion.service';
-import { Articulo, CategoriaArticulo, ConsultaResultado, MensajeChat } from '../../../core/models/constitucion.models';
+import {
+  Articulo, CategoriaArticulo, ConsultaResultado,
+  MensajeChat, FuenteChat, SegmentoMensaje,
+} from '../../../core/models/constitucion.models';
 import { ArticleCardComponent } from '../../../shared/components/article-card/article-card.component';
 
 const EJEMPLOS = [
@@ -13,6 +16,13 @@ const EJEMPLOS = [
   'Fui discriminado en mi trabajo por mi origen',
   'Me detuvieron sin orden judicial',
 ];
+
+const MENSAJE_INICIAL: MensajeChat = {
+  rol: 'bot',
+  texto: '¡Hola! Soy tu asistente constitucional.\n\nCuéntame con tus propias palabras la situación o duda que tienes y te orientaré con los artículos de la Constitución Política del Perú que aplican a tu caso.',
+};
+
+const ART_RE = /\[Art\.\s*(\d+)\]/g;
 
 @Component({
   selector: 'app-consulta-guiada',
@@ -31,9 +41,10 @@ export class ConsultaGuiadaComponent {
 
   // Chat
   readonly tab = signal<'consulta' | 'chat'>('consulta');
-  readonly mensajes = signal<MensajeChat[]>([]);
+  readonly mensajes = signal<MensajeChat[]>([MENSAJE_INICIAL]);
   readonly enviando = signal(false);
-  readonly chatInput = viewChild<ElementRef<HTMLTextAreaElement>>('chatInput');
+  readonly articulosCtx = signal<FuenteChat[]>([]);
+  readonly articuloModal = signal<FuenteChat | null>(null);
   readonly chatBody = viewChild<ElementRef<HTMLDivElement>>('chatBody');
   preguntaChat = '';
 
@@ -61,21 +72,63 @@ export class ConsultaGuiadaComponent {
   enviarChat(): void {
     const p = this.preguntaChat.trim();
     if (p.length < 5 || this.enviando()) return;
+
+    const esPrimero = this.articulosCtx().length === 0;
+
+    // Historial = mensajes reales (excluye el saludo inicial hardcoded)
+    const historial = this.mensajes()
+      .filter(m => m !== MENSAJE_INICIAL)
+      .map(m => ({ rol: m.rol, texto: m.texto }));
+
     this.mensajes.update(m => [...m, { rol: 'user', texto: p }]);
     this.preguntaChat = '';
     this.enviando.set(true);
     this.scrollChat();
-    this.service.chatConstitucional(p).subscribe({
+
+    const payload: Parameters<typeof this.service.chatConstitucional>[0] = {
+      mensaje: p,
+      historial,
+      ...(esPrimero ? {} : { articulos_ids: this.articulosCtx().map(f => f.id) }),
+    };
+
+    this.service.chatConstitucional(payload).subscribe({
       next: r => {
-        this.mensajes.update(m => [...m, { rol: 'bot', texto: r.respuesta, fuentes: r.fuentes }]);
+        if (esPrimero && r.fuentes.length > 0) this.articulosCtx.set(r.fuentes);
+        this.mensajes.update(m => [
+          ...m,
+          { rol: 'bot', texto: r.respuesta, fuentes: esPrimero ? r.fuentes : undefined },
+        ]);
         this.enviando.set(false);
         this.scrollChat();
       },
       error: () => {
-        this.mensajes.update(m => [...m, { rol: 'bot', texto: 'Error al conectar con el asistente. Inténtalo de nuevo.' }]);
+        this.mensajes.update(m => [
+          ...m,
+          { rol: 'bot', texto: 'Error al conectar con el asistente. Inténtalo de nuevo.' },
+        ]);
         this.enviando.set(false);
       },
     });
+  }
+
+  /** Descompone el texto del bot en segmentos texto / referencia [Art. N] */
+  parsear(texto: string): SegmentoMensaje[] {
+    const segs: SegmentoMensaje[] = [];
+    let last = 0;
+    ART_RE.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = ART_RE.exec(texto)) !== null) {
+      if (m.index > last) segs.push({ type: 'text', value: texto.slice(last, m.index) });
+      segs.push({ type: 'ref', value: m[0], numero: Number(m[1]) });
+      last = m.index + m[0].length;
+    }
+    if (last < texto.length) segs.push({ type: 'text', value: texto.slice(last) });
+    return segs;
+  }
+
+  abrirArticulo(numero: number): void {
+    const art = this.articulosCtx().find(f => f.numero === numero);
+    if (art) this.articuloModal.set(art);
   }
 
   private scrollChat(): void {
@@ -87,13 +140,9 @@ export class ConsultaGuiadaComponent {
 
   toArticulo(r: ConsultaResultado): Articulo {
     return {
-      id: r.id,
-      numero: r.numero,
-      titulo: r.titulo,
-      contenido: r.contenido,
-      categoria: r.categoria as CategoriaArticulo,
-      capituloId: 0,
-      tituloId: 0,
+      id: r.id, numero: r.numero, titulo: r.titulo,
+      contenido: r.contenido, categoria: r.categoria as CategoriaArticulo,
+      capituloId: 0, tituloId: 0,
     };
   }
 }
