@@ -226,6 +226,22 @@
     padding: 1px 6px;
   }
 
+  // --- Aviso chat ---
+  &__chat-disclaimer {
+    display: flex;
+    align-items: flex-start;
+    gap: v.$spacing-xs;
+    margin: v.$spacing-sm v.$spacing-lg 0;
+    padding: 8px v.$spacing-md;
+    background: #fffbeb;
+    border: 1px solid #f59e0b;
+    border-radius: v.$radius-md;
+    font-size: v.$font-size-xs;
+    color: #92400e;
+    line-height: 1.5;
+    svg { flex-shrink: 0; margin-top: 1px; color: #f59e0b; }
+  }
+
   // --- Chat ---
   &__chat {
     padding: v.$spacing-md v.$spacing-lg;

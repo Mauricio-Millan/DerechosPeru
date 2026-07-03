@@ -81,6 +81,12 @@
 
   <!-- ===== PESTAÑA CHAT ===== -->
   @if (tab() === 'chat') {
+    <div class="cg__chat-disclaimer">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Este chat es <strong>orientativo</strong>. Las respuestas de la IA no constituyen asesoramiento legal. Consulta con un abogado para tu caso específico.
+    </div>
     <div class="cg__chat" #chatBody>
       @if (mensajes().length === 0) {
         <div class="cg__chat-welcome">
