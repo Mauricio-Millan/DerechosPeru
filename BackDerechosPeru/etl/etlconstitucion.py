@@ -107,9 +107,9 @@ def parse_constitution_text(text: str) -> dict:
     active_disposition = None  # {'numero': str, 'lines': []}
 
     # Regex patterns
-    title_pattern = re.compile(r"^TITULO\s+([I|V|X|L|C|D|M]+)$", re.IGNORECASE)
-    capitulo_pattern = re.compile(r"^CAPITULO\s+([I|V|X|L|C|D|M]+)$", re.IGNORECASE)
-    articulo_pattern = re.compile(r"^Art[ií]culo\s+(\d+)[\s\.\-]+(.*)$")
+    title_pattern = re.compile(r"^T[ií]t(?:ulo)?\.?\s+([IVXLCDM]+)[\s\.\-]*$", re.IGNORECASE)
+    capitulo_pattern = re.compile(r"^Cap(?:[ií]tulo)?\.?\s+([IVXLCDM]+)[\s\.\-]*$", re.IGNORECASE)
+    articulo_pattern = re.compile(r"^Art(?:[ií]culo)?\.?\s*(\d+)[°\s\.\-]+(.*)$")
     
     disp_finales_pattern = re.compile(r"^DISPOSICIONES\s+FINALES\s+Y\s+TRANSITORIAS$", re.IGNORECASE)
     disp_especiales_pattern = re.compile(r"^DISPOSICIONES\s+TRANSITORIAS\s+ESPECIALES$", re.IGNORECASE)

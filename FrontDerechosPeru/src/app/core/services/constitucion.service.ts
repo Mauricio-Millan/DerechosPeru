@@ -9,6 +9,7 @@ import {
   FiltroArticulos,
   ArticulosResponse,
   ConsultaResponse,
+  ChatResponse,
 } from '../models/constitucion.models';
 import { VersionPublica, Comparacion } from '../models/comparador.models';
 import { environment } from '../../../environments/environment';
@@ -55,6 +56,10 @@ export class ConstitucionService {
 
   consultarGuiada(texto: string): Observable<ConsultaResponse> {
     return this.http.post<ConsultaResponse>(`${API_BASE}/consulta`, { texto });
+  }
+
+  chatConstitucional(pregunta: string): Observable<ChatResponse> {
+    return this.http.post<ChatResponse>(`${API_BASE}/consulta/chat`, { pregunta });
   }
 
   getVersionesPublicadas(): Observable<VersionPublica[]> {

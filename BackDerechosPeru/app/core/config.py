@@ -64,6 +64,9 @@ class Settings(BaseSettings):
     # 'authenticated' es la audiencia por defecto de los JWT de Supabase
     JWT_AUDIENCE: str = "authenticated"
 
+    # --- Chat con IA (Groq llama-3.1-8b-instant) ---
+    GROQ_API_KEY: str | None = None
+
     # --- Ingesta de constituciones (Sprint 6 — M8) ---
     # Service role key: SOLO en .env (gitignored) y como secret del Container App.
     # Da acceso de escritura a Supabase Storage; NUNCA exponer al frontend.

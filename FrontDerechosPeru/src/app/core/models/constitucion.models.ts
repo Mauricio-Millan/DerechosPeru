@@ -83,3 +83,20 @@ export interface ConsultaResponse {
   resultados: ConsultaResultado[];
   aviso_legal: string;
 }
+
+export interface FuenteChat {
+  numero: number;
+  sumilla: string;
+  similarity: number;
+}
+
+export interface ChatResponse {
+  respuesta: string;
+  fuentes: FuenteChat[];
+}
+
+export interface MensajeChat {
+  rol: 'user' | 'bot';
+  texto: string;
+  fuentes?: FuenteChat[];
+}
