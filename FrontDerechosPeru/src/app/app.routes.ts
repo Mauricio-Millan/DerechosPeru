@@ -85,6 +85,11 @@ export const routes: Routes = [
           import('./features/foro/hilo.component').then(m => m.HiloComponent),
       },
       {
+        path: 'historia',
+        loadComponent: () =>
+          import('./features/constitucion/historia/historia.component').then(m => m.HistoriaComponent),
+      },
+      {
         path: '',
         redirectTo: 'estructura',
         pathMatch: 'full',
