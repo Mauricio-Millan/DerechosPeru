@@ -18,6 +18,7 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1823,
     vigenciaHasta: 1826,
     tieneCongresistas: false,
+    videoId: 'QJIIXo-STWE'
   },
   {
     anio: 1826,
@@ -27,6 +28,7 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1826,
     vigenciaHasta: 1827,
     tieneCongresistas: false,
+    videoId: 'H-Pxqj8-2h8'
   },
   {
     anio: 1828,
@@ -36,6 +38,7 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1828,
     vigenciaHasta: 1834,
     tieneCongresistas: false,
+    videoId: 's01W_wROEyg'
   },
   {
     anio: 1834,
@@ -45,6 +48,7 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1834,
     vigenciaHasta: 1839,
     tieneCongresistas: false,
+    videoId: 'uqEfxNZllVQ'
   },
   {
     anio: 1839,
@@ -54,6 +58,7 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1839,
     vigenciaHasta: 1856,
     tieneCongresistas: false,
+    videoId: 'ZfSvWLfojUk'
   },
   {
     anio: 1856,
@@ -63,6 +68,7 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1856,
     vigenciaHasta: 1860,
     tieneCongresistas: false,
+    videoId: '3BwegsrS1yY'
   },
   {
     anio: 1860,
@@ -72,6 +78,7 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1860,
     vigenciaHasta: 1920,
     tieneCongresistas: false,
+    videoId: 'KFByQ4htmIA'
   },
   {
     anio: 1867,
@@ -81,6 +88,7 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1867,
     vigenciaHasta: 1868,
     tieneCongresistas: false,
+    videoId: '0-_XIO1sF-A',
   },
   {
     anio: 1920,
