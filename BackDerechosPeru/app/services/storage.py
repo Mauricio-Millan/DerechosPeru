@@ -39,3 +39,11 @@ def create_signed_url(path: str, expires: int = 3600) -> str:
     resp.raise_for_status()
     signed = resp.json()["signedURL"]  # p. ej. "/object/sign/bucket/path?token=..."
     return f"{_base_url()}{signed}"
+
+
+def delete_file(path: str) -> None:
+    """Elimina un archivo del bucket privado."""
+    bucket = settings.SUPABASE_STORAGE_BUCKET
+    url = f"{_base_url()}/object/{bucket}/{path}"
+    resp = httpx.delete(url, headers=_headers(), timeout=30)
+    resp.raise_for_status()

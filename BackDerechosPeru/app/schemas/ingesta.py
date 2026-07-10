@@ -108,3 +108,11 @@ class AsignarArticulosIn(BaseModel):
 
 class AsignarCapitulosIn(BaseModel):
     capitulo_ids: list[int] = Field(default_factory=list)
+
+
+class ArticuloManualIn(BaseModel):
+    numero: int
+    contenido: str
+    sumilla: str | None = None
+    titulo_id: int | None = None
+    capitulo_id: int | None = None

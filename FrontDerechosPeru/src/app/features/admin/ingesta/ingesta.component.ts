@@ -99,9 +99,14 @@ import { ConstitutionVersion, IngestResult } from '../../../core/models/ingesta.
                       </div>
                     }
                   </div>
-                  @if (v.status !== 'publicada') {
-                    <a [routerLink]="['/admin/ingesta', v.id, 'revisar']" class="btn btn--ghost">Revisar</a>
-                  }
+                  <div class="version__actions">
+                    @if (v.status !== 'publicada') {
+                      <a [routerLink]="['/admin/ingesta', v.id, 'revisar']" class="btn btn--ghost">Revisar</a>
+                    }
+                    @if (!v.is_current) {
+                      <button class="btn btn--danger" (click)="borrarVersion(v)">Eliminar</button>
+                    }
+                  </div>
                 </article>
               }
             </div>
@@ -151,6 +156,7 @@ import { ConstitutionVersion, IngestResult } from '../../../core/models/ingesta.
       cursor: pointer; border: 1px solid transparent; text-decoration: none; font-family: v.$font-family-ui;
       &--primary { background: v.$color-primary; color: white; &:hover:not(:disabled) { background: v.$color-primary-dark; } &:disabled { opacity: 0.6; cursor: not-allowed; } }
       &--ghost { background: transparent; border-color: v.$color-border; color: v.$color-text-secondary; &:hover { background: v.$color-bg-subtle; color: v.$color-text-primary; } }
+      &--danger { background: #fdecea; color: #922B21; border-color: rgba(192,57,43,0.3); &:hover { background: #fbd9d5; } }
     }
 
     .result {
@@ -177,6 +183,7 @@ import { ConstitutionVersion, IngestResult } from '../../../core/models/ingesta.
       &__label { color: v.$color-text-primary; font-size: v.$font-size-sm; }
       &__progress { display: flex; align-items: center; gap: v.$spacing-sm; }
       &__pct { font-size: v.$font-size-xs; color: v.$color-text-muted; white-space: nowrap; }
+      &__actions { display: flex; gap: v.$spacing-sm; flex-shrink: 0; }
     }
     .bar { flex: 1; height: 6px; background: v.$color-bg-subtle; border-radius: v.$radius-pill; overflow: hidden; max-width: 240px; }
     .bar__fill { height: 100%; background: #27AE60; transition: width 0.3s; }
@@ -224,6 +231,14 @@ export class IngestaComponent implements OnInit {
 
   pct(v: ConstitutionVersion): number {
     return v.total_articulos ? Math.round((v.verificados / v.total_articulos) * 100) : 0;
+  }
+
+  borrarVersion(v: ConstitutionVersion): void {
+    if (!confirm(`¿Eliminar "${v.label} (${v.year})"? Esta acción no se puede deshacer.`)) return;
+    this.svc.borrarVersion(v.id).subscribe({
+      next: () => this.cargarVersiones(),
+      error: err => alert(err.error?.detail || 'No se pudo eliminar la versión.'),
+    });
   }
 
   subir(): void {

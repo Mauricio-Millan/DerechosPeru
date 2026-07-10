@@ -99,4 +99,16 @@ export class IngestaService {
   asignarCapitulosATitulo(tituloId: number, capitulo_ids: number[]): Observable<void> {
     return this.http.post<void>(`${API}/titulos/${tituloId}/asignar-capitulos`, { capitulo_ids });
   }
+
+  borrarVersion(id: number): Observable<void> {
+    return this.http.delete<void>(`${API}/versions/${id}`);
+  }
+
+  crearArticulo(versionId: number, data: { numero: number; contenido: string; sumilla?: string | null; titulo_id?: number | null; capitulo_id?: number | null }): Observable<DraftArticulo> {
+    return this.http.post<DraftArticulo>(`${API}/versions/${versionId}/articulos`, data);
+  }
+
+  borrarArticulo(id: number): Observable<void> {
+    return this.http.delete<void>(`${API}/articulos/${id}`);
+  }
 }

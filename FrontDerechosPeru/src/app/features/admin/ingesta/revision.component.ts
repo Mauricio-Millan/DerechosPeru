@@ -53,11 +53,36 @@ import { RevisionEstructuraComponent } from './revision-estructura.component';
           } @else if (cargando()) {
             <p class="muted muted--pad">Cargando artículos…</p>
           } @else {
+            <!-- Formulario: agregar artículo manual -->
+            <div class="art-new">
+              @if (!mostrarForm()) {
+                <button class="btn btn--add" (click)="mostrarForm.set(true)">+ Agregar artículo</button>
+              } @else {
+                <div class="art-new__form">
+                  <label class="art-new__field">
+                    <span>N° Artículo</span>
+                    <input type="number" [(ngModel)]="nuevNum" class="art-new__input" min="1" />
+                  </label>
+                  <label class="art-new__field">
+                    <span>Contenido</span>
+                    <textarea [(ngModel)]="nuevContenido" class="art-new__textarea" rows="4"></textarea>
+                  </label>
+                  <div class="art-new__actions">
+                    <button class="btn btn--verify" [disabled]="agregando() || !nuevNum || !nuevContenido.trim()" (click)="agregarArticulo()">
+                      {{ agregando() ? 'Guardando…' : 'Guardar' }}
+                    </button>
+                    <button class="btn btn--ghost" (click)="mostrarForm.set(false)">Cancelar</button>
+                  </div>
+                </div>
+              }
+            </div>
+
             @for (a of articulos(); track a.id) {
               <article class="art" [attr.data-status]="a.review_status">
                 <div class="art__head">
                   <span class="art__num">Art. {{ a.numero }}</span>
                   <span class="chip chip--{{ a.review_status }}">{{ a.review_status }}</span>
+                  <button class="btn btn--del" (click)="eliminarArticulo(a)" title="Eliminar artículo">✕</button>
                 </div>
                 <app-markdown-editor [(value)]="a.contenido" [rows]="6" />
                 <div class="art__actions">
@@ -133,6 +158,18 @@ import { RevisionEstructuraComponent } from './revision-estructura.component';
       &--primary { background: v.$color-primary; color: white; &:hover:not(:disabled) { background: v.$color-primary-dark; } &:disabled { opacity: 0.5; cursor: not-allowed; } }
       &--verify { background: #eaf6ec; color: #1a7a40; border-color: rgba(39,174,96,0.4); &:hover { background: #d8f0dd; } }
       &--observe { background: #fdecea; color: #922B21; border-color: rgba(192,57,43,0.3); &:hover { background: #fbd9d5; } }
+      &--ghost { background: transparent; border-color: v.$color-border; color: v.$color-text-secondary; &:hover { background: v.$color-bg-subtle; } }
+      &--add { background: v.$color-bg-subtle; color: v.$color-primary; border-color: v.$color-border; border-style: dashed; width: 100%; justify-content: center; padding: 10px; }
+      &--del { padding: 3px 7px; background: transparent; color: v.$color-text-muted; border-color: transparent; margin-left: auto; font-size: 11px; &:hover { background: #fdecea; color: #922B21; border-color: rgba(192,57,43,0.3); } }
+    }
+
+    .art-new {
+      background: white; border: 1.5px dashed v.$color-border; border-radius: v.$radius-md; padding: v.$spacing-md;
+      &__form { display: flex; flex-direction: column; gap: v.$spacing-sm; }
+      &__field { display: flex; flex-direction: column; gap: 4px; font-size: v.$font-size-xs; font-weight: 600; color: v.$color-text-secondary; text-transform: uppercase; letter-spacing: 0.04em; }
+      &__input, &__textarea { padding: 8px v.$spacing-sm; border: 1.5px solid v.$color-border; border-radius: v.$radius-sm; font-size: v.$font-size-sm; font-family: v.$font-family-ui; outline: none; &:focus { border-color: v.$color-primary; } }
+      &__textarea { resize: vertical; }
+      &__actions { display: flex; gap: v.$spacing-sm; }
     }
   `],
 })
@@ -150,6 +187,10 @@ export class RevisionComponent implements OnInit {
   readonly cargando = signal(true);
   readonly publicando = signal(false);
   readonly publicado = signal(false);
+  readonly mostrarForm = signal(false);
+  readonly agregando = signal(false);
+  nuevNum = 1;
+  nuevContenido = '';
 
   readonly puedePublicar = computed(() => (this.progreso()?.pct ?? 0) === 100);
 
@@ -189,6 +230,33 @@ export class RevisionComponent implements OnInit {
     this.svc.publicar(this.versionId).subscribe({
       next: () => { this.publicando.set(false); this.publicado.set(true); },
       error: err => { this.publicando.set(false); alert(err.error?.detail || 'No se pudo publicar.'); },
+    });
+  }
+
+  agregarArticulo(): void {
+    if (!this.nuevNum || !this.nuevContenido.trim()) return;
+    this.agregando.set(true);
+    this.svc.crearArticulo(this.versionId, { numero: this.nuevNum, contenido: this.nuevContenido.trim() }).subscribe({
+      next: art => {
+        this.articulos.update(list => [...list, art].sort((a, b) => a.numero - b.numero));
+        this.nuevNum = 1;
+        this.nuevContenido = '';
+        this.mostrarForm.set(false);
+        this.agregando.set(false);
+        this.refrescarProgreso();
+      },
+      error: () => this.agregando.set(false),
+    });
+  }
+
+  eliminarArticulo(a: DraftArticulo): void {
+    if (!confirm(`¿Eliminar el Artículo ${a.numero}? Esta acción es permanente.`)) return;
+    this.svc.borrarArticulo(a.id).subscribe({
+      next: () => {
+        this.articulos.update(list => list.filter(x => x.id !== a.id));
+        this.refrescarProgreso();
+      },
+      error: err => alert(err.error?.detail || 'No se pudo eliminar el artículo.'),
     });
   }
 }

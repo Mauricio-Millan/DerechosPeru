@@ -30,6 +30,7 @@ from app.models import (
 )
 from app.schemas.ingesta import (
     ArticuloEstructura,
+    ArticuloManualIn,
     AsignarArticulosIn,
     AsignarCapitulosIn,
     CapituloDraft,
@@ -641,3 +642,64 @@ async def asignar_capitulos_a_titulo(titulo_id: int, payload: AsignarCapitulosIn
             .values(titulo_id=titulo_id)
         )
         await db.commit()
+
+
+# ============================================================
+# Borrar versión, agregar / borrar artículos manualmente
+# ============================================================
+
+
+@router.delete("/versions/{version_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def borrar_version(version_id: int, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    version = await db.get(ConstitutionVersion, version_id)
+    if not version:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Versión no encontrada")
+    if version.is_current:
+        raise HTTPException(status.HTTP_409_CONFLICT, "No se puede eliminar la versión vigente")
+
+    # Obtener ruta del PDF antes de borrar (cascade lo eliminaría de BD)
+    doc = (
+        await db.execute(
+            select(SourceDocument).where(SourceDocument.version_id == version_id).order_by(SourceDocument.id.desc())
+        )
+    ).scalars().first()
+
+    await db.delete(version)  # cascade borra títulos → capítulos → artículos
+    await db.commit()
+
+    # Best-effort: si falla el borrado en Storage, el PDF queda huérfano (inofensivo en bucket privado).
+    if doc:
+        try:
+            storage.delete_file(doc.storage_path)
+        except Exception:  # noqa: BLE001
+            pass
+
+
+@router.post("/versions/{version_id}/articulos", response_model=DraftArticuloOut, status_code=status.HTTP_201_CREATED)
+async def agregar_articulo(version_id: int, payload: ArticuloManualIn, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    version = await db.get(ConstitutionVersion, version_id)
+    if not version:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Versión no encontrada")
+    art = Articulo(
+        version_id=version_id,
+        titulo_id=payload.titulo_id,
+        capitulo_id=payload.capitulo_id,
+        numero=payload.numero,
+        sumilla=payload.sumilla,
+        contenido=payload.contenido,
+        is_published=False,
+        review_status="pendiente",
+    )
+    db.add(art)
+    await db.commit()
+    await db.refresh(art)
+    return DraftArticuloOut(id=art.id, numero=art.numero, sumilla=art.sumilla, contenido=art.contenido, review_status=art.review_status)
+
+
+@router.delete("/articulos/{articulo_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def borrar_articulo(articulo_id: int, user: CurrentUser = Depends(_editor), db: AsyncSession = Depends(get_db)):
+    art = await db.get(Articulo, articulo_id)
+    if not art:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Artículo no encontrado")
+    await db.delete(art)
+    await db.commit()
