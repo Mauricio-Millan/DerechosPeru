@@ -6,6 +6,7 @@ export interface ConstitucionHistorica {
   vigenciaDesde: number;
   vigenciaHasta: number | null; // null = vigente
   tieneCongresistas: boolean;
+  videoId?: string; // YouTube video ID
 }
 
 export const CONSTITUCIONES: ConstitucionHistorica[] = [
@@ -89,6 +90,7 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1920,
     vigenciaHasta: 1933,
     tieneCongresistas: true,
+    videoId: 'R91v-3TqHkU',
   },
   {
     anio: 1933,
@@ -98,6 +100,7 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1933,
     vigenciaHasta: 1979,
     tieneCongresistas: true,
+    videoId: 'ing4kkxF_Ik',
   },
   {
     anio: 1979,
@@ -107,6 +110,7 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1979,
     vigenciaHasta: 1993,
     tieneCongresistas: true,
+    videoId: 'uIV-dQIENwY',
   },
   {
     anio: 1993,
@@ -116,5 +120,6 @@ export const CONSTITUCIONES: ConstitucionHistorica[] = [
     vigenciaDesde: 1993,
     vigenciaHasta: null,
     tieneCongresistas: true,
+    videoId: 'm-4UzHge7V8',
   },
 ];

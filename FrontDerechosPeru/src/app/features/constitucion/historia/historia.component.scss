@@ -251,6 +251,27 @@
   padding-left: v.$spacing-md;
 }
 
+.hist__video {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+}
+
+.hist__video-iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: v.$radius-md;
+  background: #000;
+}
+
+.hist__video-disclaimer {
+  font-size: 11px;
+  color: v.$color-text-muted;
+  font-style: italic;
+  margin: 0;
+}
+
 .hist__btn-congresistas {
   display: inline-flex;
   align-items: center;

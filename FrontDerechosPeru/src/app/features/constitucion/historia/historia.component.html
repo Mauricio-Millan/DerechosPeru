@@ -66,6 +66,21 @@
 
         <p class="hist__contexto">{{ c.contexto }}</p>
 
+        @if (videoUrl(); as url) {
+          <div class="hist__video">
+            <iframe
+              [src]="url"
+              class="hist__video-iframe"
+              allowfullscreen
+              loading="lazy"
+              [title]="'Video histórico — Constitución de ' + c.anio"
+            ></iframe>
+            <p class="hist__video-disclaimer">
+              Material audiovisual de terceros incrustado desde YouTube. Los créditos y derechos corresponden a sus respectivos canales y autores.
+            </p>
+          </div>
+        }
+
         @if (c.tieneCongresistas) {
           <button class="hist__btn-congresistas" (click)="modalAbierto.set(true)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">

@@ -1,5 +1,6 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CONSTITUCIONES, ConstitucionHistorica } from '../../../core/data/constituciones-historicas';
 import { ASAMBLEAS } from '../../../core/data/congresistas-constituyentes';
 
@@ -11,9 +12,17 @@ import { ASAMBLEAS } from '../../../core/data/congresistas-constituyentes';
   styleUrl: './historia.component.scss',
 })
 export class HistoriaComponent {
+  private readonly sanitizer = inject(DomSanitizer);
+
   readonly constituciones = [...CONSTITUCIONES].reverse();
   readonly seleccionada = signal<ConstitucionHistorica | null>(CONSTITUCIONES[CONSTITUCIONES.length - 1]);
   readonly modalAbierto = signal(false);
+
+  readonly videoUrl = computed((): SafeResourceUrl | null => {
+    const vid = this.seleccionada()?.videoId;
+    if (!vid) return null;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${vid}`);
+  });
 
   readonly asamblea = computed(() => {
     if (!this.modalAbierto()) return null;
