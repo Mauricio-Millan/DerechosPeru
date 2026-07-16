@@ -40,9 +40,9 @@ import { DetalleRespuesta, PreguntaExamen, ResultadoExamen, RespuestaIn } from '
               @let preg = preguntaPorId(d.pregunta_id);
               <div class="quiz__item" [class.quiz__item--ok]="d.correcta" [class.quiz__item--fail]="!d.correcta">
                 <p class="quiz__item-pregunta">{{ preg?.pregunta }}</p>
-                <p class="quiz__item-tu">Tu respuesta: <span [class.ok]="d.correcta" [class.fail]="!d.correcta">{{ preg?.opciones[d.opcion_elegida] }}</span></p>
+                <p class="quiz__item-tu">Tu respuesta: <span [class.ok]="d.correcta" [class.fail]="!d.correcta">{{ preg?.opciones?.[d.opcion_elegida] }}</span></p>
                 @if (!d.correcta) {
-                  <p class="quiz__item-correcta">Correcta: <span class="ok">{{ preg?.opciones[d.opcion_correcta] }}</span></p>
+                  <p class="quiz__item-correcta">Correcta: <span class="ok">{{ preg?.opciones?.[d.opcion_correcta] }}</span></p>
                 }
               </div>
             }
@@ -92,7 +92,7 @@ import { DetalleRespuesta, PreguntaExamen, ResultadoExamen, RespuestaIn } from '
                 </button>
               }
             </div>
-            <p class="quiz__hint">{{ respuestas().filter(r => r !== null).length }} / {{ preguntas().length }} respondidas</p>
+            <p class="quiz__hint">{{ respondidas() }} / {{ preguntas().length }} respondidas</p>
           </div>
         }
       }
@@ -190,6 +190,7 @@ export class QuizComponent implements OnInit {
   readonly seleccionada = computed(() => this.respuestas()[this.indice()] ?? null);
   readonly pct = computed(() => this.preguntas().length ? ((this.indice() + 1) / this.preguntas().length) * 100 : 0);
   readonly todasRespondidas = computed(() => this.respuestas().every(r => r !== null));
+  readonly respondidas = computed(() => this.respuestas().filter(r => r !== null).length);
 
   ngOnInit(): void {
     this.nivel = Number(this.route.snapshot.paramMap.get('nivel')) || 1;

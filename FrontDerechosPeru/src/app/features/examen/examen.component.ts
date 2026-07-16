@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ExamenService } from '../../core/services/examen.service';
 import { NivelProgreso, ProgresoExamen } from '../../core/models/examen.models';
 
@@ -13,7 +13,7 @@ const NIVELES = [
 @Component({
   selector: 'app-examen',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   template: `
     <div class="ex">
       <header class="ex__header">
