@@ -226,6 +226,95 @@
     padding: 1px 6px;
   }
 
+  // --- Barra accesibilidad voz ---
+  &__a11y {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-sm;
+    padding: v.$spacing-xs v.$spacing-lg;
+    border-bottom: 1px solid v.$color-border;
+    background: v.$color-bg;
+    min-height: 36px;
+  }
+
+  &__a11y-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: v.$radius-pill;
+    border: 1px solid v.$color-border;
+    background: transparent;
+    font-size: v.$font-size-xs;
+    font-family: v.$font-family-ui;
+    color: v.$color-text-secondary;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+
+    &:hover { border-color: v.$color-primary; color: v.$color-primary; background: v.$color-primary-bg; }
+
+    &--on {
+      border-color: v.$color-primary;
+      color: v.$color-primary;
+      background: v.$color-primary-bg;
+    }
+
+    &--stop {
+      border-color: #C0392B;
+      color: #C0392B;
+      background: #fdecea;
+      animation: cg-pulse-red 1.5s ease-in-out infinite;
+      &:hover { background: #f9d0cc; }
+    }
+  }
+
+  &__a11y-warn {
+    font-size: v.$font-size-xs;
+    color: v.$color-text-muted;
+  }
+
+  // Botón micrófono en el input
+  &__mic {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: v.$radius-md;
+    border: 1px solid v.$color-border;
+    background: v.$color-bg;
+    color: v.$color-text-secondary;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: all v.$transition-fast;
+
+    &:hover { border-color: v.$color-primary; color: v.$color-primary; background: v.$color-primary-bg; }
+
+    &--on {
+      border-color: #C0392B;
+      color: white;
+      background: #C0392B;
+      animation: cg-pulse-red 1s ease-in-out infinite;
+    }
+  }
+
+  // Botón escuchar por mensaje
+  &__speak {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+    border-radius: v.$radius-sm;
+    border: 1px solid v.$color-border;
+    background: transparent;
+    color: v.$color-text-muted;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+
+    &:hover { border-color: v.$color-primary; color: v.$color-primary; background: v.$color-primary-bg; }
+  }
+
   // --- Aviso chat ---
   &__chat-disclaimer {
     display: flex;
@@ -451,4 +540,9 @@
 @keyframes cg-slide {
   from { transform: translateY(12px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes cg-pulse-red {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); }
+  50%       { box-shadow: 0 0 0 6px rgba(192, 57, 43, 0); }
 }

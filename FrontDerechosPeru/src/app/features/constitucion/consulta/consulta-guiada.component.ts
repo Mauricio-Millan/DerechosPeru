@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, viewChild } from '@angular/core';
+import { Component, OnDestroy, inject, signal, ElementRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConstitucionService } from '../../../core/services/constitucion.service';
@@ -31,7 +31,7 @@ const ART_RE = /\[Art\.\s*(\d+)\]/g;
   templateUrl: './consulta-guiada.component.html',
   styleUrl: './consulta-guiada.component.scss',
 })
-export class ConsultaGuiadaComponent {
+export class ConsultaGuiadaComponent implements OnDestroy {
   private readonly service = inject(ConstitucionService);
 
   readonly ejemplos = EJEMPLOS;
@@ -47,8 +47,15 @@ export class ConsultaGuiadaComponent {
   readonly articuloModal = signal<FuenteChat | null>(null);
   readonly chatBody = viewChild<ElementRef<HTMLDivElement>>('chatBody');
   preguntaChat = '';
-
   texto = '';
+
+  // Accesibilidad de voz
+  readonly speechSupported = ('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window);
+  readonly ttsSupported = 'speechSynthesis' in window;
+  readonly escuchando = signal(false);
+  readonly leyendo = signal(false);
+  readonly autoLeer = signal(false);
+  private recognition: any = null;
 
   usarEjemplo(ejemplo: string): void {
     this.texto = ejemplo;
@@ -100,6 +107,7 @@ export class ConsultaGuiadaComponent {
         ]);
         this.enviando.set(false);
         this.scrollChat();
+        if (this.autoLeer()) this.leer(r.respuesta);
       },
       error: () => {
         this.mensajes.update(m => [
@@ -136,6 +144,48 @@ export class ConsultaGuiadaComponent {
       const el = this.chatBody()?.nativeElement;
       if (el) el.scrollTop = el.scrollHeight;
     }, 50);
+  }
+
+  iniciarVoz(): void {
+    if (this.escuchando()) { this.recognition?.abort(); return; }
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    this.recognition = new SR();
+    this.recognition.lang = 'es-PE';
+    this.recognition.interimResults = false;
+    this.recognition.onresult = (e: any) => {
+      this.preguntaChat = e.results[0][0].transcript;
+      this.escuchando.set(false);
+      this.enviarChat();
+    };
+    this.recognition.onerror = () => this.escuchando.set(false);
+    this.recognition.onend = () => this.escuchando.set(false);
+    this.recognition.start();
+    this.escuchando.set(true);
+  }
+
+  leer(texto: string): void {
+    if (!this.ttsSupported) return;
+    speechSynthesis.cancel();
+    const limpio = texto.replace(/\[Art\.\s*\d+\]/g, '').trim();
+    const utt = new SpeechSynthesisUtterance(limpio);
+    utt.lang = 'es-PE';
+    utt.rate = 0.95;
+    utt.onstart = () => this.leyendo.set(true);
+    utt.onend = () => this.leyendo.set(false);
+    utt.onerror = () => this.leyendo.set(false);
+    speechSynthesis.speak(utt);
+  }
+
+  toggleAutoLeer(): void { this.autoLeer.update(v => !v); }
+
+  detenerAudio(): void {
+    speechSynthesis.cancel();
+    this.leyendo.set(false);
+  }
+
+  ngOnDestroy(): void {
+    this.recognition?.abort();
+    speechSynthesis.cancel();
   }
 
   toArticulo(r: ConsultaResultado): Articulo {

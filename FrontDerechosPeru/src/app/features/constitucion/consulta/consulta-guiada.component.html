@@ -84,6 +84,26 @@
       Este chat es <strong>orientativo</strong>. Las respuestas de la IA no constituyen asesoramiento legal. Consulta con un abogado para tu caso específico.
     </div>
 
+    <!-- Barra de accesibilidad de voz -->
+    <div class="cg__a11y">
+      @if (ttsSupported) {
+        @if (leyendo()) {
+          <button class="cg__a11y-btn cg__a11y-btn--stop" (click)="detenerAudio()" aria-label="Detener lectura de voz">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+            Detener audio
+          </button>
+        } @else {
+          <button class="cg__a11y-btn" [class.cg__a11y-btn--on]="autoLeer()" (click)="toggleAutoLeer()" aria-label="Activar lectura automática de respuestas">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/></svg>
+            Leer respuestas: <strong>{{ autoLeer() ? 'activado' : 'desactivado' }}</strong>
+          </button>
+        }
+      }
+      @if (!speechSupported && !ttsSupported) {
+        <span class="cg__a11y-warn">Tu navegador no soporta voz. Usa Chrome o Edge.</span>
+      }
+    </div>
+
     <div class="cg__chat" #chatBody>
       @for (m of mensajes(); track $index) {
         <div class="cg__msg" [class.cg__msg--user]="m.rol === 'user'" [class.cg__msg--bot]="m.rol === 'bot'">
@@ -104,6 +124,11 @@
               }
             </div>
           }
+          @if (ttsSupported && m.rol === 'bot') {
+            <button class="cg__speak" (click)="leer(m.texto)" aria-label="Escuchar esta respuesta en voz alta" title="Escuchar">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
+            </button>
+          }
         </div>
       }
       @if (enviando()) {
@@ -116,9 +141,26 @@
     </div>
 
     <div class="cg__input">
+      @if (speechSupported) {
+        <button
+          class="cg__mic"
+          [class.cg__mic--on]="escuchando()"
+          (click)="iniciarVoz()"
+          [attr.aria-label]="escuchando() ? 'Detener grabación de voz' : 'Dictar pregunta con el micrófono'"
+          [title]="escuchando() ? 'Detener escucha' : 'Hablar con el asistente'">
+          @if (escuchando()) {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+          } @else {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <rect x="9" y="2" width="6" height="12" rx="3"/>
+              <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
+            </svg>
+          }
+        </button>
+      }
       <textarea class="cg__textarea" [(ngModel)]="preguntaChat"
         (keydown.enter)="$event.preventDefault(); enviarChat()"
-        placeholder="Describe tu situación o haz una pregunta…"
+        [placeholder]="speechSupported ? 'Escribe o usa el micrófono…' : 'Describe tu situación o haz una pregunta…'"
         aria-label="Escribe tu consulta"></textarea>
       <button class="cg__submit" (click)="enviarChat()" [disabled]="enviando() || preguntaChat.trim().length < 5">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
