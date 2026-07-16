@@ -12,6 +12,7 @@ from app.api.routes import (
     consulta,
     cuenta,
     estructura,
+    examen,
     forum,
     ingesta,
 )
@@ -41,6 +42,7 @@ app.include_router(forum.router, prefix=settings.API_PREFIX)
 app.include_router(annotations.router, prefix=settings.API_PREFIX)
 app.include_router(ingesta.router, prefix=settings.API_PREFIX)
 app.include_router(comparador.router, prefix=settings.API_PREFIX)
+app.include_router(examen.router, prefix=settings.API_PREFIX)
 app.include_router(analytics.router, prefix=settings.API_PREFIX)
 
 

@@ -97,6 +97,16 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'examen',
+    loadComponent: () =>
+      import('./features/examen/examen.component').then(m => m.ExamenComponent),
+  },
+  {
+    path: 'examen/quiz/:nivel',
+    loadComponent: () =>
+      import('./features/examen/quiz.component').then(m => m.QuizComponent),
+  },
+  {
     path: '',
     redirectTo: 'constitucion/estructura',
     pathMatch: 'full',

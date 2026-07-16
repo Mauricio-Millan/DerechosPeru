@@ -7,6 +7,7 @@ from app.models.constitution import (
     ConsultaLog,
     Titulo,
 )
+from app.models.examen import ExamenResultado
 from app.models.forum import ExpertAnnotation, ForumPost, ForumThread, PostVote
 from app.models.ingesta import IngestJob, SourceDocument
 
@@ -26,4 +27,5 @@ __all__ = [
     "ExpertAnnotation",
     "SourceDocument",
     "IngestJob",
+    "ExamenResultado",
 ]
