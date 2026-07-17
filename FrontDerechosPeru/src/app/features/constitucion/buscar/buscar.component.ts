@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs';
 import { ConstitucionService } from '../../../core/services/constitucion.service';
 import { Articulo, CategoriaArticulo, CATEGORIAS } from '../../../core/models/constitucion.models';
@@ -18,11 +19,15 @@ const PAGE_SIZE = 20;
 })
 export class BuscarComponent implements OnInit, OnDestroy {
   private readonly service = inject(ConstitucionService);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroy$ = new Subject<void>();
   private readonly busqueda$ = new Subject<{ query: string; categoria: CategoriaArticulo | null; page: number }>();
 
   readonly categorias = CATEGORIAS;
   readonly modo = signal<'directa' | 'guiada'>('directa');
+
+  autoTab = '';
+  autoVoz = false;
   readonly articulos = signal<Articulo[]>([]);
   readonly total = signal(0);
   readonly page = signal(0);
@@ -36,6 +41,11 @@ export class BuscarComponent implements OnInit, OnDestroy {
   categoriaActiva: CategoriaArticulo | null = null;
 
   ngOnInit(): void {
+    const p = this.route.snapshot.queryParams;
+    if (p['modo'] === 'guiada') this.modo.set('guiada');
+    this.autoTab = p['tab'] ?? '';
+    this.autoVoz = p['voz'] === '1';
+
     this.busqueda$
       .pipe(
         debounceTime(250),

@@ -26,7 +26,7 @@
   </div>
 
   @if (modo() === 'guiada') {
-    <app-consulta-guiada />
+    <app-consulta-guiada [startTab]="autoTab" [autoVoz]="autoVoz" />
   } @else {
     <div class="buscar__filtros">
       <div class="buscar__search-wrap">

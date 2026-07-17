@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal, ElementRef, viewChild } from '@angular/core';
+import { Component, Input, OnDestroy, inject, signal, ElementRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConstitucionService } from '../../../core/services/constitucion.service';
@@ -48,6 +48,14 @@ export class ConsultaGuiadaComponent implements OnDestroy {
   readonly chatBody = viewChild<ElementRef<HTMLDivElement>>('chatBody');
   preguntaChat = '';
   texto = '';
+
+  @Input() set startTab(v: string) {
+    if (v === 'chat') this.tab.set('chat');
+  }
+
+  @Input() set autoVoz(v: boolean) {
+    if (v && this.speechSupported) setTimeout(() => this.iniciarVoz(), 400);
+  }
 
   // Accesibilidad de voz
   readonly speechSupported = ('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window);
