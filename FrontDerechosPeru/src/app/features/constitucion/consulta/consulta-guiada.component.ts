@@ -54,7 +54,18 @@ export class ConsultaGuiadaComponent implements OnDestroy {
   }
 
   @Input() set autoVoz(v: boolean) {
-    if (v && this.speechSupported) setTimeout(() => this.iniciarVoz(), 400);
+    if (!v) return;
+    this.autoLeer.set(true);
+    setTimeout(() => {
+      if (this.ttsSupported) {
+        // Lee el saludo y al terminar activa el micrófono
+        this.leer(MENSAJE_INICIAL.texto, () => {
+          if (this.speechSupported) this.iniciarVoz();
+        });
+      } else if (this.speechSupported) {
+        this.iniciarVoz();
+      }
+    }, 400);
   }
 
   // Accesibilidad de voz
@@ -171,7 +182,7 @@ export class ConsultaGuiadaComponent implements OnDestroy {
     this.escuchando.set(true);
   }
 
-  leer(texto: string): void {
+  leer(texto: string, onEnd?: () => void): void {
     if (!this.ttsSupported) return;
     speechSynthesis.cancel();
     const limpio = texto.replace(/\[Art\.\s*\d+\]/g, '').trim();
@@ -179,8 +190,8 @@ export class ConsultaGuiadaComponent implements OnDestroy {
     utt.lang = 'es-PE';
     utt.rate = 0.95;
     utt.onstart = () => this.leyendo.set(true);
-    utt.onend = () => this.leyendo.set(false);
-    utt.onerror = () => this.leyendo.set(false);
+    utt.onend = () => { this.leyendo.set(false); onEnd?.(); };
+    utt.onerror = () => { this.leyendo.set(false); onEnd?.(); };
     speechSynthesis.speak(utt);
   }
 
