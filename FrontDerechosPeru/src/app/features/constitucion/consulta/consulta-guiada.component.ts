@@ -2,6 +2,8 @@ import { Component, Input, OnDestroy, inject, signal, ElementRef, viewChild } fr
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConstitucionService } from '../../../core/services/constitucion.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { LoginPromptService } from '../../../core/services/login-prompt.service';
 import {
   Articulo, CategoriaArticulo, ConsultaResultado,
   MensajeChat, FuenteChat, SegmentoMensaje,
@@ -33,6 +35,8 @@ const ART_RE = /\[Art\.\s*(\d+)\]/g;
 })
 export class ConsultaGuiadaComponent implements OnDestroy {
   private readonly service = inject(ConstitucionService);
+  private readonly auth = inject(AuthService);
+  private readonly loginPrompt = inject(LoginPromptService);
 
   readonly ejemplos = EJEMPLOS;
   readonly resultados = signal<ConsultaResultado[]>([]);
@@ -95,9 +99,15 @@ export class ConsultaGuiadaComponent implements OnDestroy {
     });
   }
 
+  abrirChat(): void {
+    if (!this.auth.isLoggedIn()) { this.loginPrompt.show('chat'); return; }
+    this.tab.set('chat');
+  }
+
   enviarChat(): void {
     const p = this.preguntaChat.trim();
     if (p.length < 5 || this.enviando()) return;
+    if (!this.auth.isLoggedIn()) { this.loginPrompt.show('chat'); return; }
 
     const esPrimero = this.articulosCtx().length === 0;
 

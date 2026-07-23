@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ForoService } from '../../core/services/foro.service';
 import { AuthService } from '../../core/services/auth.service';
+import { LoginPromptService } from '../../core/services/login-prompt.service';
 import { Thread } from '../../core/models/foro.models';
 
 @Component({
@@ -16,6 +17,7 @@ import { Thread } from '../../core/models/foro.models';
 export class ForoComponent implements OnInit {
   private readonly foroService = inject(ForoService);
   readonly authService = inject(AuthService);
+  private readonly loginPrompt = inject(LoginPromptService);
 
   readonly threads = signal<Thread[]>([]);
   readonly cargando = signal<boolean>(false);
@@ -46,6 +48,7 @@ export class ForoComponent implements OnInit {
 
   toggleFormulario(): void {
     if (!this.authService.isLoggedIn()) {
+      this.loginPrompt.show('foro');
       return;
     }
     this.mostrandoFormulario.update(v => !v);

@@ -7,6 +7,7 @@ import { timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { ForoService } from '../../core/services/foro.service';
 import { AuthService } from '../../core/services/auth.service';
+import { LoginPromptService } from '../../core/services/login-prompt.service';
 import { ThreadDetail, Post } from '../../core/models/foro.models';
 
 @Component({
@@ -22,6 +23,7 @@ export class HiloComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly foroService = inject(ForoService);
   readonly authService = inject(AuthService);
+  private readonly loginPrompt = inject(LoginPromptService);
 
   readonly thread = signal<ThreadDetail | null>(null);
   readonly cargando = signal<boolean>(true);
@@ -64,6 +66,7 @@ export class HiloComponent implements OnInit {
 
   enviarRespuesta(): void {
     if (!this.nuevaRespuesta.trim()) return;
+    if (!this.authService.isLoggedIn()) { this.loginPrompt.show('foro'); return; }
 
     this.enviandoRespuesta.set(true);
     this.errorRespuesta.set('');
@@ -84,7 +87,7 @@ export class HiloComponent implements OnInit {
 
   votar(post: Post, value: number): void {
     if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/auth']);
+      this.loginPrompt.show('foro');
       return;
     }
     this.foroService.votar(post.id, value).subscribe({
