@@ -90,21 +90,21 @@ export const routes: Routes = [
           import('./features/constitucion/historia/historia.component').then(m => m.HistoriaComponent),
       },
       {
+        path: 'examen',
+        loadComponent: () =>
+          import('./features/examen/examen.component').then(m => m.ExamenComponent),
+      },
+      {
+        path: 'examen/quiz/:nivel',
+        loadComponent: () =>
+          import('./features/examen/quiz.component').then(m => m.QuizComponent),
+      },
+      {
         path: '',
         redirectTo: 'estructura',
         pathMatch: 'full',
       },
     ],
-  },
-  {
-    path: 'examen',
-    loadComponent: () =>
-      import('./features/examen/examen.component').then(m => m.ExamenComponent),
-  },
-  {
-    path: 'examen/quiz/:nivel',
-    loadComponent: () =>
-      import('./features/examen/quiz.component').then(m => m.QuizComponent),
   },
   {
     path: '',

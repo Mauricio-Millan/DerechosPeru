@@ -50,14 +50,14 @@ import { DetalleRespuesta, PreguntaExamen, ResultadoExamen, RespuestaIn } from '
 
           <div class="quiz__resultado-actions">
             <button class="btn btn--primary" (click)="reiniciar()">Repetir examen</button>
-            <a routerLink="/examen" class="btn btn--ghost">Volver al inicio</a>
+            <a routerLink="/constitucion/examen" class="btn btn--ghost">Volver al inicio</a>
           </div>
         </div>
 
       } @else {
         <!-- Pantalla de pregunta -->
         <header class="quiz__header">
-          <a routerLink="/examen" class="quiz__back">← Salir</a>
+          <a routerLink="/constitucion/examen" class="quiz__back">← Salir</a>
           <div class="quiz__meta">
             <span class="quiz__nivel">Nivel {{ nivel }}</span>
             <span class="quiz__progreso">{{ indice() + 1 }} / {{ preguntas().length }}</span>

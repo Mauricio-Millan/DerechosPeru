@@ -144,6 +144,6 @@ export class ExamenComponent implements OnInit {
   }
 
   iniciar(nivel: number): void {
-    this.router.navigate(['/examen/quiz', nivel]);
+    this.router.navigate(['/constitucion/examen/quiz', nivel]);
   }
 }
